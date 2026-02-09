@@ -31,7 +31,7 @@ A modern React showcase webpage for the IntelliMed-AI medical AI project, built 
 **Institution**: Manipal University Jaipur  
 **Department**: Computer Science & Engineering  
 **Course**: PBL 2026  
-**Guide**: [To be added]
+**Guide**: Ms. Soni Gupta
 
 ## Getting Started
 
