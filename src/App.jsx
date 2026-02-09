@@ -391,7 +391,7 @@ function App() {
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                 <div className="bg-[#111618] border-2 border-[#283339] p-4 flex flex-col items-center text-center group hover:border-primary transition-all hover:-translate-y-1">
                   <div className="w-24 h-24 mb-4 border-2 border-[#283339] bg-gradient-to-br from-primary/20 to-cyan-900/20 rounded flex items-center justify-center">
-                    <span className="text-4xl font-black text-primary">S1</span>
+                    <span className="text-4xl font-black text-primary">SR</span>
                   </div>
                   <h5 className="text-lg font-black uppercase text-white mb-1">Sarthak Routray</h5>
                   <span className="text-xs font-mono text-primary uppercase tracking-wider mb-2">[Reg No]</span>
