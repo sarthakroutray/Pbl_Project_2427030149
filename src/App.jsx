@@ -1,6 +1,29 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+
+const formatStopwatchTime = (milliseconds) => {
+  const totalCentiseconds = Math.floor(milliseconds / 10)
+  const minutes = String(Math.floor(totalCentiseconds / 6000)).padStart(2, '0')
+  const seconds = String(Math.floor((totalCentiseconds % 6000) / 100)).padStart(2, '0')
+  const centiseconds = String(totalCentiseconds % 100).padStart(2, '0')
+  return `${minutes}:${seconds}.${centiseconds}`
+}
 
 function App() {
+  const [elapsedTime, setElapsedTime] = useState(0)
+  const [isRunning, setIsRunning] = useState(false)
+
+  useEffect(() => {
+    if (!isRunning) {
+      return undefined
+    }
+
+    const intervalId = setInterval(() => {
+      setElapsedTime((previousTime) => previousTime + 10)
+    }, 10)
+
+    return () => clearInterval(intervalId)
+  }, [isRunning])
+
   return (
     <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-x-hidden">
       {/* Navigation */}
@@ -19,6 +42,8 @@ function App() {
           </div>
           <div className="hidden md:flex flex-1 justify-end">
             <div className="flex">
+              <a className="px-8 py-6 text-sm font-bold uppercase tracking-widest border-l-2 border-[#283339] hover:bg-primary hover:text-white transition-all" href="#problem-gap">Problem & Gap</a>
+              <a className="px-8 py-6 text-sm font-bold uppercase tracking-widest border-l-2 border-[#283339] hover:bg-primary hover:text-white transition-all" href="#architecture">Architecture</a>
               <a className="px-8 py-6 text-sm font-bold uppercase tracking-widest border-l-2 border-[#283339] hover:bg-primary hover:text-white transition-all" href="#capabilities">Capabilities</a>
               <a className="px-8 py-6 text-sm font-bold uppercase tracking-widest border-l-2 border-[#283339] hover:bg-primary hover:text-white transition-all" href="#accuracy">Accuracy</a>
               <a className="px-8 py-6 text-sm font-bold uppercase tracking-widest border-l-2 border-[#283339] hover:bg-primary hover:text-white transition-all" href="#stack">Stack</a>
@@ -96,34 +121,130 @@ function App() {
             <div className="flex flex-col gap-6">
               <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Contents</span>
               <nav className="flex flex-col gap-4">
-                <a className="text-sm font-bold text-white hover:text-primary flex items-center gap-2 group" href="#capabilities">
-                  <span className="w-1 h-1 bg-primary rounded-full group-hover:w-3 transition-all"></span> 01. Capabilities
+                <a className="text-sm font-bold text-white hover:text-primary flex items-center gap-2 group" href="#problem-gap">
+                  <span className="w-1 h-1 bg-primary rounded-full group-hover:w-3 transition-all"></span> 01. Problem & Gap
+                </a>
+                <a className="text-sm font-bold text-gray-400 hover:text-primary flex items-center gap-2 group" href="#architecture">
+                  <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary group-hover:w-3 transition-all"></span> 02. Architecture
+                </a>
+                <a className="text-sm font-bold text-gray-400 hover:text-primary flex items-center gap-2 group" href="#capabilities">
+                  <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary group-hover:w-3 transition-all"></span> 03. Capabilities
                 </a>
                 <a className="text-sm font-bold text-gray-400 hover:text-primary flex items-center gap-2 group" href="#accuracy">
-                  <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary group-hover:w-3 transition-all"></span> 02. Accuracy
+                  <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary group-hover:w-3 transition-all"></span> 04. Accuracy
                 </a>
                 <a className="text-sm font-bold text-gray-400 hover:text-primary flex items-center gap-2 group" href="#stack">
-                  <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary group-hover:w-3 transition-all"></span> 03. Tech Stack
+                  <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary group-hover:w-3 transition-all"></span> 05. Tech Stack
                 </a>
                 <a className="text-sm font-bold text-gray-400 hover:text-primary flex items-center gap-2 group" href="#demo">
-                  <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary group-hover:w-3 transition-all"></span> 04. Demo
+                  <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary group-hover:w-3 transition-all"></span> 06. Demo
                 </a>
                 <a className="text-sm font-bold text-gray-400 hover:text-primary flex items-center gap-2 group" href="#team">
-                  <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary group-hover:w-3 transition-all"></span> 05. Team
+                  <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary group-hover:w-3 transition-all"></span> 07. Team
                 </a>
               </nav>
             </div>
             <div className="mt-auto pt-8 border-t-2 border-[#283339]">
               <div className="text-xs text-gray-500 font-mono uppercase mb-1">LAST UPDATED</div>
-              <div className="text-sm font-mono text-white">FEB 09, 2026</div>
+              <div className="text-sm font-mono text-white">FEB 14, 2026</div>
             </div>
           </aside>
 
           <div className="lg:col-span-10">
+            {/* Problem Statement & Research Gap Section */}
+            <section className="border-b-4 border-[#283339] bg-[#161b1e] p-6 md:p-16" id="problem-gap">
+              <div className="flex flex-col gap-2 mb-12">
+                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 01</span>
+                <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">Problem Statement<br />&amp; Research Gap</h3>
+              </div>
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                <div className="border-4 border-[#283339] p-6 md:p-8 bg-[#111618]">
+                  <h4 className="text-xl font-bold uppercase mb-6 border-b border-[#283339] pb-3 text-primary">Problem Statement</h4>
+                  <p className="text-gray-300 leading-relaxed text-lg">
+                    The inefficiency and error-proneness of managing and analyzing fragmented, multi-format patient data, which delays diagnosis, increases medical errors, and heightens clinician workload.
+                  </p>
+                </div>
+                <div className="border-4 border-[#283339] p-6 md:p-8 bg-[#111618]">
+                  <h4 className="text-xl font-bold uppercase mb-6 border-b border-[#283339] pb-3 text-primary">Research Gap</h4>
+                  <p className="text-gray-300 leading-relaxed mb-4">
+                    Existing solutions often optimize only one modality at a time, but this platform context shows real care workflows need combined handling of prescriptions, diagnostic images, and secure sharing in a single path.
+                  </p>
+                  <ul className="space-y-3 text-sm text-gray-300 list-disc pl-5">
+                    <li>Current reporting highlights model accuracy (93.8% X-ray, 93.2% medication extraction) but not end-to-end clinical impact such as reduction in diagnostic delays and documentation errors.</li>
+                    <li>Multi-format ingestion (PDF, image, DICOM) is addressed technically, yet there is limited evidence on robust cross-modal correlation between extracted text entities and imaging findings for clinician decision support.</li>
+                    <li>Security and role-based sharing are present, but research is still needed on interoperability with broader hospital ecosystems and longitudinal care records at scale.</li>
+                    <li>Fast processing (3-4s) improves throughput, though a gap remains in explainability and uncertainty communication so clinicians can calibrate trust in AI-assisted outputs.</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+
+            {/* Architecture Section */}
+            <section className="border-b-4 border-[#283339] bg-[#161b1e] p-6 md:p-16" id="architecture">
+              <div className="flex flex-col gap-2 mb-16">
+                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 02</span>
+                <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">System Architecture</h3>
+                <p className="text-gray-400 max-w-2xl text-lg mt-4 border-l-2 border-[#283339] pl-4">
+                  A high-performance parallel processing pipeline coordinating secure uploads, analysis, and storage.
+                </p>
+              </div>
+              <div className="relative grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-4 py-8">
+                <div className="hidden md:block absolute top-[88px] left-0 w-full h-1 border-t-4 border-dashed border-[#283339] z-0"></div>
+                <div className="relative z-10 flex flex-col items-center text-center group">
+                  <div className="w-44 h-44 rounded-full border-4 border-[#283339] bg-[#111618] flex items-center justify-center mb-8 group-hover:border-primary group-hover:scale-105 transition-all duration-300 shadow-xl shadow-black/20">
+                    <div className="w-36 h-36 rounded-full bg-[#1a2327] flex items-center justify-center border-2 border-[#283339] group-hover:border-primary/30 transition-all">
+                      <span className="material-symbols-outlined text-6xl text-gray-500 group-hover:text-primary transition-colors">cloud_upload</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <div className="w-1 h-8 border-l-2 border-dashed border-[#283339] mb-2 md:hidden"></div>
+                    <h4 className="text-xl font-black uppercase text-white mb-2 group-hover:text-primary transition-colors">User Upload</h4>
+                    <p className="text-sm text-gray-400 max-w-[200px] leading-relaxed">Secure interface for encrypted document submission.</p>
+                  </div>
+                </div>
+                <div className="relative z-10 flex flex-col items-center text-center group">
+                  <div className="w-44 h-44 rounded-full border-4 border-[#283339] bg-[#111618] flex items-center justify-center mb-8 group-hover:border-primary group-hover:scale-105 transition-all duration-300 shadow-xl shadow-black/20">
+                    <div className="w-36 h-36 rounded-full bg-[#1a2327] flex items-center justify-center border-2 border-[#283339] group-hover:border-primary/30 transition-all">
+                      <span className="material-symbols-outlined text-6xl text-gray-500 group-hover:text-primary transition-colors">hub</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <div className="w-1 h-8 border-l-2 border-dashed border-[#283339] mb-2 md:hidden"></div>
+                    <h4 className="text-xl font-black uppercase text-white mb-2 group-hover:text-primary transition-colors">API Coordination</h4>
+                    <p className="text-sm text-gray-400 max-w-[200px] leading-relaxed">FastAPI Gateway handling parallel request orchestration.</p>
+                  </div>
+                </div>
+                <div className="relative z-10 flex flex-col items-center text-center group">
+                  <div className="w-44 h-44 rounded-full border-4 border-[#283339] bg-[#111618] flex items-center justify-center mb-8 group-hover:border-primary group-hover:scale-105 transition-all duration-300 shadow-xl shadow-black/20">
+                    <div className="w-36 h-36 rounded-full bg-[#1a2327] flex items-center justify-center border-2 border-[#283339] group-hover:border-primary/30 transition-all">
+                      <span className="material-symbols-outlined text-6xl text-gray-500 group-hover:text-primary transition-colors">smart_toy</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <div className="w-1 h-8 border-l-2 border-dashed border-[#283339] mb-2 md:hidden"></div>
+                    <h4 className="text-xl font-black uppercase text-white mb-2 group-hover:text-primary transition-colors">AI Analysis</h4>
+                    <p className="text-sm text-gray-400 max-w-[200px] leading-relaxed">Parallel OCR, Computer Vision, and NLP processing services.</p>
+                  </div>
+                </div>
+                <div className="relative z-10 flex flex-col items-center text-center group">
+                  <div className="w-44 h-44 rounded-full border-4 border-[#283339] bg-[#111618] flex items-center justify-center mb-8 group-hover:border-primary group-hover:scale-105 transition-all duration-300 shadow-xl shadow-black/20">
+                    <div className="w-36 h-36 rounded-full bg-[#1a2327] flex items-center justify-center border-2 border-[#283339] group-hover:border-primary/30 transition-all">
+                      <span className="material-symbols-outlined text-6xl text-gray-500 group-hover:text-primary transition-colors">dns</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <div className="w-1 h-8 border-l-2 border-dashed border-[#283339] mb-2 md:hidden"></div>
+                    <h4 className="text-xl font-black uppercase text-white mb-2 group-hover:text-primary transition-colors">Data Storage</h4>
+                    <p className="text-sm text-gray-400 max-w-[200px] leading-relaxed">Structured PostgreSQL database and secure file storage.</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
             {/* Capabilities Section */}
             <section className="border-b-4 border-[#283339] bg-background-light dark:bg-background-dark p-6 md:p-16" id="capabilities">
               <div className="flex flex-col gap-2 mb-12">
-                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 01</span>
+                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 03</span>
                 <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">AI Capabilities</h3>
                 <p className="text-gray-400 max-w-2xl text-lg mt-4 border-l-2 border-[#283339] pl-4">
                   Multi-modal document analysis integrating OCR, medical NLP, and deep learning for comprehensive healthcare document processing with 150+ medication database and ResNet50-powered X-ray classification.
@@ -170,7 +291,7 @@ function App() {
             <section className="border-b-4 border-[#283339] bg-[#161b1e] p-6 md:p-16" id="accuracy">
               <div className="flex flex-col md:flex-row justify-between md:items-end mb-16 gap-6">
                 <div>
-                  <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 02</span>
+                  <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 04</span>
                   <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">Diagnostic<br />Accuracy</h3>
                 </div>
                 <div className="flex items-center gap-4">
@@ -247,7 +368,7 @@ function App() {
             {/* Tech Stack Section */}
             <section className="border-b-4 border-[#283339] bg-background-light dark:bg-background-dark p-6 md:p-16" id="stack">
               <div className="flex flex-col gap-2 mb-12">
-                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 03</span>
+                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 05</span>
                 <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">The Stack</h3>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -307,7 +428,7 @@ function App() {
             {/* Demo Screenshots Section */}
             <section className="border-b-4 border-[#283339] bg-background-light dark:bg-background-dark p-6 md:p-16" id="demo">
               <div className="flex flex-col gap-2 mb-12">
-                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 04</span>
+                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 06</span>
                 <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">Project Demo</h3>
                 <p className="text-gray-400 max-w-2xl text-lg mt-4 border-l-2 border-[#283339] pl-4">
                   Real-world screenshots showcasing the IntelliMed-AI platform in action from patient dashboards to AI-powered medical analysis results.
@@ -384,7 +505,7 @@ function App() {
             {/* Team Section */}
             <section className="p-6 md:p-16 bg-[#161b1e]" id="team">
               <div className="flex flex-col gap-2 mb-12 text-center md:text-left">
-                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 05</span>
+                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 07</span>
                 <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">Project Team</h3>
                 <p className="text-gray-400 text-lg mt-2">Department of Computer Science & Engineering</p>
               </div>
@@ -394,7 +515,7 @@ function App() {
                     <span className="text-4xl font-black text-primary">SR</span>
                   </div>
                   <h5 className="text-lg font-black uppercase text-white mb-1">Sarthak Routray</h5>
-                  <span className="text-xs font-mono text-primary uppercase tracking-wider mb-2">[Reg No]</span>
+                  <span className="text-xs font-mono text-primary uppercase tracking-wider mb-2">2427030149</span>
                   <span className="text-xs text-gray-400 mb-4">Team Member</span>
                   <div className="flex gap-2 mt-auto">
                     <a className="w-8 h-8 flex items-center justify-center border border-[#283339] hover:bg-white hover:text-black transition-colors" href="#">
@@ -445,6 +566,34 @@ function App() {
           </div>
         </div>
       </main>
+      <div className="fixed bottom-6 right-6 z-50 w-[240px] h-[160px] border-4 border-[#283339] bg-[#111618] shadow-[8px_8px_0px_0px_rgba(0,229,255,0.2)]">
+        <div className="flex items-center justify-between border-b-2 border-[#283339] px-3 py-2">
+          <span className="text-xs font-bold uppercase tracking-widest text-primary">Stopwatch</span>
+          <span className="material-symbols-outlined text-primary text-base">timer</span>
+        </div>
+        <div className="px-3 py-4">
+          <div className="text-3xl font-black text-white text-center mb-3 font-mono">{formatStopwatchTime(elapsedTime)}</div>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setIsRunning((currentValue) => !currentValue)}
+              className="border-2 border-primary bg-primary text-[#111618] text-xs font-bold uppercase py-2 hover:bg-transparent hover:text-primary transition-colors"
+            >
+              {isRunning ? 'Pause' : 'Start'}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsRunning(false)
+                setElapsedTime(0)
+              }}
+              className="border-2 border-[#283339] text-gray-300 text-xs font-bold uppercase py-2 hover:border-primary hover:text-primary transition-colors"
+            >
+              Reset
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
