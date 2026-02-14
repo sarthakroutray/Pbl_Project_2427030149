@@ -30,8 +30,7 @@ function App() {
       <nav className="sticky top-0 z-50 border-b-4 border-[#283339] bg-background-light dark:bg-background-dark">
         <div className="flex flex-col md:flex-row justify-between md:items-center">
           <div className="flex items-center justify-between p-4 md:px-8 md:py-6 border-b-2 md:border-b-0 md:border-r-2 border-[#283339] bg-primary/10">
-            <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-4xl text-primary font-black">medical_services</span>
+            <div className="flex items-center gap-2">
               <h1 className="text-2xl md:text-3xl font-black tracking-tighter uppercase leading-none">
                 INTELLIMED<span className="text-primary">-AI</span>
               </h1>
