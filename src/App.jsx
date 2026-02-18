@@ -17,9 +17,12 @@ function App() {
       return undefined
     }
 
+    // Speed up timer to 1.25x: increment by 12.5ms every 10ms (rounded to 13ms for integer math)
+    const increment = 12.5
+    const interval = 10
     const intervalId = setInterval(() => {
-      setElapsedTime((previousTime) => previousTime + 10)
-    }, 10)
+      setElapsedTime((previousTime) => previousTime + increment)
+    }, interval)
 
     return () => clearInterval(intervalId)
   }, [isRunning])
