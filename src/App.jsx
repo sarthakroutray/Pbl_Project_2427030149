@@ -25,11 +25,9 @@ const GITHUB_FALLBACK = {
   topContributor: 'sarthakroutray',
   topContributions: 21,
   languages: [
-    { name: 'JavaScript', percentage: 63 },
-    { name: 'Python', percentage: 29 },
-    { name: 'CSS', percentage: 7 },
-    { name: 'HTML', percentage: 0 },
-    { name: 'Dockerfile', percentage: 0 }
+    { name: 'Dart', percentage: 45 },
+    { name: 'Python', percentage: 15 },
+    { name: 'Other', percentage: 40 }
   ]
 }
 
@@ -78,6 +76,60 @@ const getLanguageBreakdown = (languagesObject) => {
       percentage: totalBytes > 0 ? Math.round((bytes / totalBytes) * 100) : 0
     }))
 }
+
+const MIGRATION_ROWS = [
+  { feature: 'Data Architecture', legacy: 'Centralized cloud uploads; MongoDB for unstructured AI results.', expanded: 'Privacy-first hybrid; PostgreSQL/Prisma for structured metadata; private object storage.' },
+  { feature: 'Processing Node', legacy: 'Basic API gateway coordinating remote cloud AI services.', expanded: 'Edge-centric; on-device AI/ML (ResNet-50, Qwen3 SLM).' },
+  { feature: 'User Workflow', legacy: 'Passive storage with web-dashboard summaries.', expanded: 'Active full-cycle doctor-verification loops with digital sign-off.' },
+  { feature: 'Intelligence Logic', legacy: 'Opaque server-side model calls.', expanded: 'Deterministic extraction / interpretation separation for clinical safety.' }
+]
+
+const PRIOR_ART = [
+  { title: 'Generic Scanners', ex: 'Lens, Adobe Scan', desc: 'Great dewarp + OCR, but generic text — 11.2 next to Hemoglobin is never read as a biomarker vs a range.' },
+  { title: 'Rx / Report Apps', ex: '1mg, Practo', desc: 'Extract med names + doses, but no deterministic interpretation, panic triage, or doctor sign-off.' },
+  { title: 'Ambient Scribes', ex: 'DAX, Abridge', desc: 'Cloud speech-to-text + generative notes — probabilistic LLMs sit in the diagnostic path, hallucination risk.' },
+  { title: 'Symptom Checkers', ex: 'Ada, Buoy', desc: 'Real triage logic, but manual questionnaire input only — never parse raw Rx, labs, or X-rays.' },
+  { title: 'PHR Aggregators', ex: 'Apple Health, Portals', desc: 'Passive EHR storage — no extraction, normalization, or interpretation of paper scans.' }
+]
+
+const CORE_GAPS = [
+  { n: '01', title: 'Extraction ≠ Interpretation', desc: 'Opaque LLMs do both jobs at once — high hallucination risk in diagnostics.' },
+  { n: '02', title: 'Cloud Dependency', desc: 'Raw unencrypted documents shipped to servers; no offline-first neural inference.' },
+  { n: '03', title: 'No Point-of-Capture Triage', desc: 'No blur/glare gates or live local rule checks for panic-level labs at capture.' },
+  { n: '04', title: 'Disconnected Clinicians', desc: 'Scanning tools isolated from doctors — no review, annotate, sign-off loop.' }
+]
+
+const GAP_MATRIX = [
+  { sys: 'Generic Scanners', ocr: 'Yes', rules: 'No', edge: 'Yes', loop: 'No', cv: 'No' },
+  { sys: 'Consumer Rx Scanners', ocr: 'Yes', rules: 'No', edge: 'Partial', loop: 'No', cv: 'No' },
+  { sys: 'Ambient Scribes', ocr: 'Speech', rules: 'LLM', edge: 'No', loop: 'Partial', cv: 'No' },
+  { sys: 'Symptom Checkers', ocr: 'No', rules: 'Yes', edge: 'No', loop: 'Partial', cv: 'No' },
+  { sys: 'PHR Aggregators', ocr: 'No', rules: 'No', edge: 'N/A', loop: 'No', cv: 'No' },
+  { sys: 'IntelliMed-AI', ocr: 'Yes', rules: 'Deterministic', edge: 'Yes', loop: 'Yes', cv: 'Yes', highlight: true }
+]
+
+const BRIDGE_STAGES = [
+  { n: 'S1', title: 'Multimodal Extraction', desc: 'ML Kit on-device / OpenDataLoader-EasyOCR on backend: text, boxes, geometry.' },
+  { n: 'S2', title: 'Deterministic Structuring', desc: 'Unified 10-key schema (names, units, bounds) — zero diagnostic judgments.' },
+  { n: 'S3', title: 'Rule Engine', desc: 'Pure rules, no LLM: panic thresholds, Mentzer / eGFR, multi-analyte patterns.' },
+  { n: 'S4', title: 'Doctor Loop', desc: '6-char access codes; clinicians review, annotate, digitally stamp results.' }
+]
+
+const PIPELINE_STAGES = [
+  { n: '01', title: 'Capture', desc: 'Perspective correction and dewarping via Google ML Kit.' },
+  { n: '02', title: 'Quality Gate', desc: 'Laplacian variance checks for blur, glare, darkness.' },
+  { n: '03', title: 'Extraction', desc: 'Google ML Kit OCR or character-level digital PDF extraction.' },
+  { n: '04', title: 'Structuring', desc: 'Y-axis projection + horizontal gutters to rebuild rows and columns.' },
+  { n: '05', title: 'Normalization', desc: 'Map to canonical 10-key schema via bundled clinical_rules.json.' },
+  { n: '06', title: 'Persistence', desc: 'Local SQLite + V2Sync background worker for eventual consistency.' }
+]
+
+const MODEL_ROWS = [
+  { model: 'ResNet-50', size: '~94MB', purpose: 'Chest X-ray classification', spec: 'ONNX, opset 17', opt: 'NPU/CPU runtime parity' },
+  { model: 'Qwen3-0.6B', size: '~382MB', purpose: 'Clinical explanations', spec: 'Q4_0 GGUF', opt: 'Empty think-block prefill cuts tokens ~70%' }
+]
+
+const RULE_ENGINES = ['Anion Gap', 'De Ritis Ratio', 'Corrected Calcium', 'Bilirubin Consistency', 'Mentzer Index', 'eGFR (CKD-EPI 2021)', 'Arithmetic consistency checks', 'Panic-value flags']
 
 function App() {
   const [elapsedTime, setElapsedTime] = useState(0)
@@ -168,7 +220,6 @@ function App() {
       return undefined
     }
 
-    // Speed up timer to 1.25x: increment by 12.5ms every 10ms (rounded to 13ms for integer math)
     const increment = 12.5
     const interval = 10
     const intervalId = setInterval(() => {
@@ -179,13 +230,13 @@ function App() {
   }, [isRunning])
 
   const githubMarqueeItems = [
-    { icon: 'star', label: `${githubData.stars} Stars` },
-    { icon: 'fork_right', label: `${githubData.forks} Forks` },
-    { icon: 'group', label: `${githubData.contributors} Contributors` },
-    { icon: 'alt_route', label: `${githubData.branches} Branches` },
-    { icon: 'bug_report', label: `${githubData.openIssues} Open Issues` },
-    { icon: 'schedule', label: `Last Push ${formatGithubDate(githubData.pushedAt)}` },
-    { icon: 'code', label: githubData.latestCommitSha ? `Commit ${githubData.latestCommitSha}` : 'Commit N/A' }
+    { icon: 'offline_bolt', label: '100% Offline Inference' },
+    { icon: 'smartphone', label: '~480MB On-Device Models' },
+    { icon: 'document_scanner', label: '6-Stage Edge Pipeline' },
+    { icon: 'science', label: 'Deterministic Rule Engine' },
+    { icon: 'verified', label: '297 Automated Tests' },
+    { icon: 'lock', label: 'Zero Raw Images to Cloud' },
+    { icon: 'group', label: 'Doctor Sign-Off Loop' }
   ]
 
   const latestCommitUrl = githubData.latestCommitSha
@@ -209,13 +260,14 @@ function App() {
           </div>
           <div className="hidden md:flex flex-1 justify-end">
             <div className="flex">
-              <a className="px-8 py-6 text-sm font-bold uppercase tracking-widest border-l-2 border-[#283339] hover:bg-primary hover:text-white transition-all" href="#problem-gap">Problem & Gap</a>
-              <a className="px-8 py-6 text-sm font-bold uppercase tracking-widest border-l-2 border-[#283339] hover:bg-primary hover:text-white transition-all" href="#architecture">Architecture</a>
-              <a className="px-8 py-6 text-sm font-bold uppercase tracking-widest border-l-2 border-[#283339] hover:bg-primary hover:text-white transition-all" href="#capabilities">Capabilities</a>
-              <a className="px-8 py-6 text-sm font-bold uppercase tracking-widest border-l-2 border-[#283339] hover:bg-primary hover:text-white transition-all" href="#accuracy">Accuracy</a>
-              <a className="px-8 py-6 text-sm font-bold uppercase tracking-widest border-l-2 border-[#283339] hover:bg-primary hover:text-white transition-all" href="#stack">Stack</a>
-              <a className="px-8 py-6 text-sm font-bold uppercase tracking-widest border-l-2 border-[#283339] hover:bg-primary hover:text-white transition-all" href="#demo">Demo</a>
-              <a className="px-8 py-6 text-sm font-bold uppercase tracking-widest border-l-2 border-[#283339] hover:bg-primary hover:text-white transition-all" href="#team">Team</a>
+              <a className="px-6 py-6 text-sm font-bold uppercase tracking-widest border-l-2 border-[#283339] hover:bg-primary hover:text-white transition-all" href="#genesis">Gap</a>
+              <a className="px-6 py-6 text-sm font-bold uppercase tracking-widest border-l-2 border-[#283339] hover:bg-primary hover:text-white transition-all" href="#architecture">Architecture</a>
+              <a className="px-6 py-6 text-sm font-bold uppercase tracking-widest border-l-2 border-[#283339] hover:bg-primary hover:text-white transition-all" href="#edge">Edge Core</a>
+              <a className="px-6 py-6 text-sm font-bold uppercase tracking-widest border-l-2 border-[#283339] hover:bg-primary hover:text-white transition-all" href="#pipeline">Pipeline</a>
+              <a className="px-6 py-6 text-sm font-bold uppercase tracking-widest border-l-2 border-[#283339] hover:bg-primary hover:text-white transition-all" href="#experience">UX</a>
+              <a className="px-6 py-6 text-sm font-bold uppercase tracking-widest border-l-2 border-[#283339] hover:bg-primary hover:text-white transition-all" href="#security">Security</a>
+              <a className="px-6 py-6 text-sm font-bold uppercase tracking-widest border-l-2 border-[#283339] hover:bg-primary hover:text-white transition-all" href="#stack">Stack</a>
+              <a className="px-6 py-6 text-sm font-bold uppercase tracking-widest border-l-2 border-[#283339] hover:bg-primary hover:text-white transition-all" href="#team">Team</a>
             </div>
           </div>
         </div>
@@ -226,17 +278,24 @@ function App() {
         <header className="relative grid grid-cols-1 lg:grid-cols-12 min-h-[85vh] border-b-4 border-[#283339]">
           <div className="lg:col-span-7 flex flex-col justify-center p-6 md:p-12 lg:p-20 border-b-4 lg:border-b-0 lg:border-r-4 border-[#283339] relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -z-10"></div>
-            <div className="mb-6 flex items-center gap-2">
+            <div className="mb-6 flex flex-wrap items-center gap-2">
               <span className="px-3 py-1 text-xs font-bold bg-[#283339] text-white rounded uppercase tracking-widest">MUJ PBL 2026</span>
-              <span className="px-3 py-1 text-xs font-bold border border-primary text-primary rounded uppercase tracking-widest">AI-Powered</span>
+              <span className="px-3 py-1 text-xs font-bold border border-primary text-primary rounded uppercase tracking-widest">Privacy-First</span>
+              <span className="px-3 py-1 text-xs font-bold border border-primary text-primary rounded uppercase tracking-widest">Offline-First Edge AI</span>
             </div>
             <h2 className="text-6xl md:text-8xl lg:text-9xl font-black leading-[0.85] tracking-tighter uppercase mb-8">
               IntelliMed<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-cyan-100">-AI</span>
             </h2>
-            <p className="text-lg md:text-xl font-medium text-gray-400 max-w-2xl leading-relaxed border-l-4 border-primary pl-6 mb-12">
-              IntelliMed-AI is a multi-modal healthcare intelligence platform for document parsing, X-ray analysis, and secure patient-doctor collaboration. This page now syncs live project health data directly from GitHub.
+            <p className="text-lg md:text-xl font-medium text-gray-400 max-w-2xl leading-relaxed border-l-4 border-primary pl-6 mb-8">
+              A privacy-first clinical intelligence platform. Raw prescriptions, lab reports and radiology images never leave the device — on-device ResNet-50 + Qwen3 SLM turn them into severity-annotated datasets, synced through a FastAPI gateway to a unified doctor dashboard.
             </p>
+            <div className="flex flex-wrap gap-2 mb-8 max-w-3xl">
+              <span className="px-3 py-1 text-xs font-mono bg-[#111618] border-2 border-[#283339] text-primary uppercase">Flutter Edge Node</span>
+              <span className="px-3 py-1 text-xs font-mono bg-[#111618] border-2 border-[#283339] text-primary uppercase">React SPA Thin Client</span>
+              <span className="px-3 py-1 text-xs font-mono bg-[#111618] border-2 border-[#283339] text-primary uppercase">FastAPI /api/v1 + /api/v2</span>
+              <span className="px-3 py-1 text-xs font-mono bg-[#111618] border-2 border-[#283339] text-primary uppercase">248 Mobile + 49 Backend Tests</span>
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8 max-w-3xl">
               <div className="border-2 border-[#283339] bg-[#111618] px-3 py-3">
                 <div className="text-xs text-gray-400 uppercase tracking-wider">Latest Commit</div>
@@ -273,21 +332,21 @@ function App() {
           <div className="lg:col-span-5 relative bg-[#1a2327] flex flex-col">
             <div className="h-1/2 w-full bg-cover bg-center border-b-4 border-[#283339]" style={{backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBjcZxplohYdkyb8EIZPL_gzRnNKziR9NE8RsxM8RVADNLfGUuqdhqbvdTcTiBCer-c-UR82tK1EmkLhLD3Qb2RkueeFyfN7xE5DsQ--dD6hMrear_MS-DPLaPod8oz3rtor8gVZLaBrLNQNMJzpNywgP4gN_HsBhd-MbAP3CthhpF6hYdwNvkClaB8uXauhUdTAlzNXyJNBwOsRKiuJN5VBBV1hrxatz4czfq7SiF0pFF_0wbroXadra6ZJxu6xNfTdv8Z5WXhJwU')"}}>
               <div className="w-full h-full bg-primary/20 backdrop-brightness-75 flex items-end p-6">
-                <span className="bg-black/80 text-white px-2 py-1 text-xs font-mono">FIG 1.0: DIAGNOSTIC MATRIX</span>
+                <span className="bg-black/80 text-white px-2 py-1 text-xs font-mono">FIG 1.0: EDGE INTELLIGENCE NODE</span>
               </div>
             </div>
             <div className="h-1/2 w-full bg-cover bg-center" style={{backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBOQBc5H6Y7NJZof0sOB-aNJBIVk28ET8gVN8ASP7HmyaGA9_yfGUwr7qFYQeMrUT6__DfO-hvExtEUkv1uKpLK6PXiAiJS-PSr9dyIFUEH2_mqWzNSnIAqHrHWfhSUX0ph4b2En50aty32fJXkdQwHZpbBB6bzsoPki0-gxvkibIAlQuR3XYBdpvRzrOvAe5q10zRcJd-8EZr0ZcQLkMt1Pk5UxqbHKW6B0Q_nwBljH7OXV3IWpa0URh_QUR_XOSiYy1BrvHM0kQU')"}}>
               <div className="w-full h-full bg-[#111618]/60 flex items-end p-6">
-                <span className="bg-black/80 text-white px-2 py-1 text-xs font-mono">FIG 1.1: IMAGE PROCESSING UNIT</span>
+                <span className="bg-black/80 text-white px-2 py-1 text-xs font-mono">FIG 1.1: ON-DEVICE CV + SLM</span>
               </div>
             </div>
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#111618] border-4 border-primary p-6 shadow-[8px_8px_0px_0px_rgba(0,229,255,0.3)] max-w-xs w-full">
               <div className="flex justify-between items-start mb-2">
-                <span className="text-gray-400 text-xs font-mono uppercase">Avg Processing</span>
-                <span className="material-symbols-outlined text-primary">timer</span>
+                <span className="text-gray-400 text-xs font-mono uppercase">On-Device Models</span>
+                <span className="material-symbols-outlined text-primary">smartphone</span>
               </div>
-              <div className="text-5xl font-black text-white mb-1">3-4s</div>
-              <div className="text-sm font-bold text-primary">Per Document</div>
+              <div className="text-5xl font-black text-white mb-1">~480MB</div>
+              <div className="text-sm font-bold text-primary">Bundled APK — raw images stay local</div>
               <div className="text-[11px] text-gray-400 mt-3 font-mono">LAST PUSH: {formatGithubDate(githubData.pushedAt)}</div>
             </div>
           </div>
@@ -312,26 +371,32 @@ function App() {
             <div className="flex flex-col gap-6">
               <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Contents</span>
               <nav className="flex flex-col gap-4">
-                <a className="text-sm font-bold text-white hover:text-primary flex items-center gap-2 group" href="#problem-gap">
-                  <span className="w-1 h-1 bg-primary rounded-full group-hover:w-3 transition-all"></span> 01. Problem & Gap
+                <a className="text-sm font-bold text-white hover:text-primary flex items-center gap-2 group" href="#genesis">
+                  <span className="w-1 h-1 bg-primary rounded-full group-hover:w-3 transition-all"></span> 01. Gap & Prior Art
                 </a>
                 <a className="text-sm font-bold text-gray-400 hover:text-primary flex items-center gap-2 group" href="#architecture">
                   <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary group-hover:w-3 transition-all"></span> 02. Architecture
                 </a>
-                <a className="text-sm font-bold text-gray-400 hover:text-primary flex items-center gap-2 group" href="#capabilities">
-                  <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary group-hover:w-3 transition-all"></span> 03. Capabilities
+                <a className="text-sm font-bold text-gray-400 hover:text-primary flex items-center gap-2 group" href="#edge">
+                  <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary group-hover:w-3 transition-all"></span> 03. Edge Core
                 </a>
-                <a className="text-sm font-bold text-gray-400 hover:text-primary flex items-center gap-2 group" href="#accuracy">
-                  <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary group-hover:w-3 transition-all"></span> 04. Accuracy
+                <a className="text-sm font-bold text-gray-400 hover:text-primary flex items-center gap-2 group" href="#pipeline">
+                  <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary group-hover:w-3 transition-all"></span> 04. AI Pipeline
+                </a>
+                <a className="text-sm font-bold text-gray-400 hover:text-primary flex items-center gap-2 group" href="#experience">
+                  <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary group-hover:w-3 transition-all"></span> 05. UX
+                </a>
+                <a className="text-sm font-bold text-gray-400 hover:text-primary flex items-center gap-2 group" href="#security">
+                  <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary group-hover:w-3 transition-all"></span> 06. Security & Scale
                 </a>
                 <a className="text-sm font-bold text-gray-400 hover:text-primary flex items-center gap-2 group" href="#stack">
-                  <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary group-hover:w-3 transition-all"></span> 05. Tech Stack
+                  <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary group-hover:w-3 transition-all"></span> 07. Stack
                 </a>
                 <a className="text-sm font-bold text-gray-400 hover:text-primary flex items-center gap-2 group" href="#demo">
-                  <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary group-hover:w-3 transition-all"></span> 06. Demo
+                  <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary group-hover:w-3 transition-all"></span> 08. Demo
                 </a>
                 <a className="text-sm font-bold text-gray-400 hover:text-primary flex items-center gap-2 group" href="#team">
-                  <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary group-hover:w-3 transition-all"></span> 07. Team
+                  <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary group-hover:w-3 transition-all"></span> 09. Team
                 </a>
               </nav>
             </div>
@@ -346,216 +411,304 @@ function App() {
           </aside>
 
           <div className="lg:col-span-10">
-            {/* Problem Statement & Research Gap Section */}
-            <section className="border-b-4 border-[#283339] bg-[#161b1e] p-6 md:p-16" id="problem-gap">
+            {/* 01 Research Gap + Prior Art */}
+            <section className="border-b-4 border-[#283339] bg-[#161b1e] p-6 md:p-16" id="genesis">
               <div className="flex flex-col gap-2 mb-12">
-                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 01</span>
-                <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">Problem Statement<br />&amp; Research Gap</h3>
+                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 01 — Research Gap</span>
+                <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">Prior Art Falls Short.<br />We Close The Gap.</h3>
+                <p className="text-gray-300 max-w-3xl text-lg mt-4 border-l-4 border-primary pl-4">
+                  No single system combines raw capture, OCR extraction, deterministic interpretation, a doctor-verification loop, and a 100% offline privacy-preserving mobile pipeline. Point solutions do one job — IntelliMed-AI unifies all five.
+                </p>
               </div>
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                <div className="border-4 border-[#283339] p-6 md:p-8 bg-[#111618]">
-                  <h4 className="text-xl font-bold uppercase mb-6 border-b border-[#283339] pb-3 text-primary">Problem Statement</h4>
-                  <p className="text-gray-300 leading-relaxed text-lg">
-                    The inefficiency and error-proneness of managing and analyzing fragmented, multi-format patient data, which delays diagnosis, increases medical errors, and heightens clinician workload.
-                  </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                {PRIOR_ART.map((item) => (
+                  <div key={item.title} className="border-2 border-[#283339] bg-[#111618] p-6 hover:border-primary transition-colors group">
+                    <div className="text-xs font-mono text-gray-500 uppercase mb-2">{item.ex}</div>
+                    <h4 className="font-black uppercase text-white mb-2 group-hover:text-primary transition-colors">{item.title}</h4>
+                    <p className="text-sm text-gray-400">{item.desc}</p>
+                  </div>
+                ))}
+                <div className="border-2 border-primary bg-[#111618] p-6 shadow-[8px_8px_0px_0px_rgba(0,229,255,0.2)]">
+                  <div className="text-xs font-mono text-primary uppercase mb-2">This project</div>
+                  <h4 className="font-black uppercase text-white mb-2">IntelliMed-AI</h4>
+                  <p className="text-sm text-gray-300">OCR extraction <span className="text-primary font-bold">Yes</span> · deterministic rules <span className="text-primary font-bold">Yes</span> · on-device <span className="text-primary font-bold">Yes</span> · doctor loop <span className="text-primary font-bold">Yes</span> · X-ray CV <span className="text-primary font-bold">Yes</span>.</p>
                 </div>
-                <div className="border-4 border-[#283339] p-6 md:p-8 bg-[#111618]">
-                  <h4 className="text-xl font-bold uppercase mb-6 border-b border-[#283339] pb-3 text-primary">Research Gap</h4>
-                  <p className="text-gray-300 leading-relaxed mb-4">
-                    Existing solutions often optimize only one modality at a time, but this platform context shows real care workflows need combined handling of prescriptions, diagnostic images, and secure sharing in a single path.
-                  </p>
-                  <ul className="space-y-3 text-sm text-gray-300 list-disc pl-5">
-                    <li>Current reporting highlights model accuracy (93.8% X-ray, 93.2% medication extraction) but not end-to-end clinical impact such as reduction in diagnostic delays and documentation errors.</li>
-                    <li>Multi-format ingestion (PDF, image, DICOM) is addressed technically, yet there is limited evidence on robust cross-modal correlation between extracted text entities and imaging findings for clinician decision support.</li>
-                    <li>Security and role-based sharing are present, but research is still needed on interoperability with broader hospital ecosystems and longitudinal care records at scale.</li>
-                    <li>Fast processing (3-4s) improves throughput, though a gap remains in explainability and uncertainty communication so clinicians can calibrate trust in AI-assisted outputs.</li>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                {CORE_GAPS.map((gap) => (
+                  <div key={gap.n} className="border-2 border-[#283339] bg-[#111618] p-6">
+                    <span className="text-4xl font-black text-[#283339]">{gap.n}</span>
+                    <h4 className="font-black uppercase text-primary mt-2 mb-2 text-sm">{gap.title}</h4>
+                    <p className="text-sm text-gray-400">{gap.desc}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="border-4 border-[#283339] bg-[#111618] overflow-x-auto mb-8">
+                <div className="px-6 py-4 border-b-2 border-[#283339] text-xs font-bold uppercase tracking-widest text-gray-400">Capability Matrix — Who Covers All Five?</div>
+                <table className="w-full text-sm min-w-[720px]">
+                  <thead>
+                    <tr className="text-left uppercase text-xs tracking-widest text-gray-500">
+                      <th className="px-6 py-4">System</th>
+                      <th className="px-6 py-4">OCR</th>
+                      <th className="px-6 py-4">Rules</th>
+                      <th className="px-6 py-4">On-Device</th>
+                      <th className="px-6 py-4">Doctor Loop</th>
+                      <th className="px-6 py-4">X-ray CV</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {GAP_MATRIX.map((row) => (
+                      <tr key={row.sys} className={`border-t-2 ${row.highlight ? 'border-primary bg-primary/5' : 'border-[#283339]'}`}>
+                        <td className={`px-6 py-3 font-black uppercase ${row.highlight ? 'text-primary' : 'text-white'}`}>{row.sys}</td>
+                        <td className="px-6 py-3 text-gray-300">{row.ocr}</td>
+                        <td className="px-6 py-3 text-gray-300">{row.rules}</td>
+                        <td className="px-6 py-3 text-gray-300">{row.edge}</td>
+                        <td className="px-6 py-3 text-gray-300">{row.loop}</td>
+                        <td className="px-6 py-3 text-gray-300">{row.cv}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                {BRIDGE_STAGES.map((stage) => (
+                  <div key={stage.n} className="border-2 border-[#283339] bg-[#111618] p-6 hover:border-primary transition-colors">
+                    <span className="text-xs font-mono text-primary uppercase">{stage.n}</span>
+                    <h4 className="font-black uppercase text-white mt-1 mb-2">{stage.title}</h4>
+                    <p className="text-sm text-gray-400">{stage.desc}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="border-4 border-[#283339] bg-[#111618] overflow-x-auto">
+                <div className="px-6 py-4 border-b-2 border-[#283339] text-xs font-bold uppercase tracking-widest text-gray-400">Legacy Vision → Expanded Scope (Privacy-First Hybrid)</div>
+                <table className="w-full text-sm min-w-[640px]">
+                  <thead>
+                    <tr className="text-left uppercase text-xs tracking-widest text-gray-500">
+                      <th className="px-6 py-4">Feature</th>
+                      <th className="px-6 py-4">Legacy (Cloud-Centric)</th>
+                      <th className="px-6 py-4 text-primary">Expanded (Privacy-First)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {MIGRATION_ROWS.map((row) => (
+                      <tr key={row.feature} className="border-t-2 border-[#283339] align-top">
+                        <td className="px-6 py-4 font-black uppercase text-white">{row.feature}</td>
+                        <td className="px-6 py-4 text-gray-400">{row.legacy}</td>
+                        <td className="px-6 py-4 text-gray-200">{row.expanded}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            {/* 02 Architecture */}
+            <section className="border-b-4 border-[#283339] bg-[#161b1e] p-6 md:p-16" id="architecture">
+              <div className="flex flex-col gap-2 mb-12">
+                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 02 — Dual-Client Design</span>
+                <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">Hybrid Cloud / Edge</h3>
+                <p className="text-gray-400 max-w-3xl text-lg mt-4 border-l-2 border-[#283339] pl-4">
+                  High-throughput web review for clinicians + high-privacy offline capture for patients. Five-layer stack with API version freezing: legacy web at <span className="font-mono text-primary">/api/v1</span>, structured mobile ingest at <span className="font-mono text-primary">/api/v2</span>.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+                {[
+                  { icon: 'web', title: 'Web Client', desc: 'React SPA thin client for review + admin actions.' },
+                  { icon: 'smartphone', title: 'Mobile Client', desc: 'Flutter Android edge intelligence node.' },
+                  { icon: 'bolt', title: 'Backend API', desc: 'FastAPI gateway: auth, RBAC, server pipelines.' },
+                  { icon: 'smart_toy', title: 'AI/ML Layer', desc: 'ONNX Runtime, llama.cpp, PyTorch inference.' },
+                  { icon: 'database', title: 'Persistence', desc: 'Prisma/PostgreSQL + Supabase buckets (signed URLs) + SQLite on-device.' }
+                ].map((layer) => (
+                  <div key={layer.title} className="border-2 border-[#283339] bg-[#111618] p-6 hover:border-primary transition-colors group">
+                    <span className="material-symbols-outlined text-4xl text-gray-500 group-hover:text-primary mb-3">{layer.icon}</span>
+                    <h4 className="font-black uppercase text-white mb-2">{layer.title}</h4>
+                    <p className="text-sm text-gray-400">{layer.desc}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="border-2 border-[#283339] bg-[#111618] p-6">
+                  <h4 className="font-black uppercase text-primary mb-3">Reliability Engineering</h4>
+                  <ul className="space-y-2 text-sm text-gray-300 list-disc pl-5">
+                    <li><span className="font-mono text-white">Pseudo-path abstraction</span> — synthetic paths like <span className="font-mono">app-structured/lab_report</span> prevent signed-URL failures when mobile uploads structured results without raw files.</li>
+                    <li><span className="font-mono text-white">Multi-tier caching</span> — 120s TTL on hot lookups such as <span className="font-mono">doctor_has_patient_access</span>.</li>
                   </ul>
                 </div>
-              </div>
-            </section>
-
-            {/* Architecture Section */}
-            <section className="border-b-4 border-[#283339] bg-[#161b1e] p-6 md:p-16" id="architecture">
-              <div className="flex flex-col gap-2 mb-16">
-                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 02</span>
-                <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">System Architecture</h3>
-                <p className="text-gray-400 max-w-2xl text-lg mt-4 border-l-2 border-[#283339] pl-4">
-                  A high-performance parallel processing pipeline coordinating secure uploads, analysis, and storage.
-                </p>
-              </div>
-              <div className="relative grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-4 py-8">
-                <div className="hidden md:block absolute top-[88px] left-0 w-full h-1 border-t-4 border-dashed border-[#283339] z-0"></div>
-                <div className="relative z-10 flex flex-col items-center text-center group">
-                  <div className="w-44 h-44 rounded-full border-4 border-[#283339] bg-[#111618] flex items-center justify-center mb-8 group-hover:border-primary group-hover:scale-105 transition-all duration-300 shadow-xl shadow-black/20">
-                    <div className="w-36 h-36 rounded-full bg-[#1a2327] flex items-center justify-center border-2 border-[#283339] group-hover:border-primary/30 transition-all">
-                      <span className="material-symbols-outlined text-6xl text-gray-500 group-hover:text-primary transition-colors">cloud_upload</span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <div className="w-1 h-8 border-l-2 border-dashed border-[#283339] mb-2 md:hidden"></div>
-                    <h4 className="text-xl font-black uppercase text-white mb-2 group-hover:text-primary transition-colors">User Upload</h4>
-                    <p className="text-sm text-gray-400 max-w-[200px] leading-relaxed">Secure interface for encrypted document submission.</p>
-                  </div>
-                </div>
-                <div className="relative z-10 flex flex-col items-center text-center group">
-                  <div className="w-44 h-44 rounded-full border-4 border-[#283339] bg-[#111618] flex items-center justify-center mb-8 group-hover:border-primary group-hover:scale-105 transition-all duration-300 shadow-xl shadow-black/20">
-                    <div className="w-36 h-36 rounded-full bg-[#1a2327] flex items-center justify-center border-2 border-[#283339] group-hover:border-primary/30 transition-all">
-                      <span className="material-symbols-outlined text-6xl text-gray-500 group-hover:text-primary transition-colors">hub</span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <div className="w-1 h-8 border-l-2 border-dashed border-[#283339] mb-2 md:hidden"></div>
-                    <h4 className="text-xl font-black uppercase text-white mb-2 group-hover:text-primary transition-colors">API Coordination</h4>
-                    <p className="text-sm text-gray-400 max-w-[200px] leading-relaxed">FastAPI Gateway handling parallel request orchestration.</p>
-                  </div>
-                </div>
-                <div className="relative z-10 flex flex-col items-center text-center group">
-                  <div className="w-44 h-44 rounded-full border-4 border-[#283339] bg-[#111618] flex items-center justify-center mb-8 group-hover:border-primary group-hover:scale-105 transition-all duration-300 shadow-xl shadow-black/20">
-                    <div className="w-36 h-36 rounded-full bg-[#1a2327] flex items-center justify-center border-2 border-[#283339] group-hover:border-primary/30 transition-all">
-                      <span className="material-symbols-outlined text-6xl text-gray-500 group-hover:text-primary transition-colors">smart_toy</span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <div className="w-1 h-8 border-l-2 border-dashed border-[#283339] mb-2 md:hidden"></div>
-                    <h4 className="text-xl font-black uppercase text-white mb-2 group-hover:text-primary transition-colors">AI Analysis</h4>
-                    <p className="text-sm text-gray-400 max-w-[200px] leading-relaxed">Parallel OCR, Computer Vision, and NLP processing services.</p>
-                  </div>
-                </div>
-                <div className="relative z-10 flex flex-col items-center text-center group">
-                  <div className="w-44 h-44 rounded-full border-4 border-[#283339] bg-[#111618] flex items-center justify-center mb-8 group-hover:border-primary group-hover:scale-105 transition-all duration-300 shadow-xl shadow-black/20">
-                    <div className="w-36 h-36 rounded-full bg-[#1a2327] flex items-center justify-center border-2 border-[#283339] group-hover:border-primary/30 transition-all">
-                      <span className="material-symbols-outlined text-6xl text-gray-500 group-hover:text-primary transition-colors">dns</span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <div className="w-1 h-8 border-l-2 border-dashed border-[#283339] mb-2 md:hidden"></div>
-                    <h4 className="text-xl font-black uppercase text-white mb-2 group-hover:text-primary transition-colors">Data Storage</h4>
-                    <p className="text-sm text-gray-400 max-w-[200px] leading-relaxed">Structured PostgreSQL database and secure file storage.</p>
-                  </div>
+                <div className="border-2 border-[#283339] bg-[#111618] p-6">
+                  <h4 className="font-black uppercase text-primary mb-3">Origin Tagging</h4>
+                  <p className="text-sm text-gray-300">Every record carries provenance (<span className="font-mono text-white">web</span> vs <span className="font-mono text-white">app</span>) — one unified doctor dashboard with a full audit trail of where data was captured and processed.</p>
                 </div>
               </div>
             </section>
 
-            {/* Capabilities Section */}
-            <section className="border-b-4 border-[#283339] bg-background-light dark:bg-background-dark p-6 md:p-16" id="capabilities">
+            {/* 03 Edge core */}
+            <section className="border-b-4 border-[#283339] bg-background-light dark:bg-background-dark p-6 md:p-16" id="edge">
               <div className="flex flex-col gap-2 mb-12">
-                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 03</span>
-                <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">AI Capabilities</h3>
-                <p className="text-gray-400 max-w-2xl text-lg mt-4 border-l-2 border-[#283339] pl-4">
-                  Multi-modal document analysis integrating OCR, medical NLP, and deep learning for comprehensive healthcare document processing with 150+ medication database and ResNet50-powered X-ray classification.
+                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 03 — Mobile Deep Dive</span>
+                <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">Edge Intelligence Core</h3>
+                <p className="text-gray-400 max-w-3xl text-lg mt-4 border-l-2 border-[#283339] pl-4">
+                  The Flutter Android app is the primary deliverable — a self-contained offline-first node. Six-stage local pipeline, mid-range hardware friendly, no multi-minute stalls.
                 </p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="group border-2 border-[#283339] bg-[#1a2327] hover:border-primary transition-colors duration-300 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <span className="material-symbols-outlined text-9xl">description</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                {PIPELINE_STAGES.map((stage) => (
+                  <div key={stage.n} className="group border-2 border-[#283339] bg-[#1a2327] hover:border-primary transition-colors p-6 relative overflow-hidden">
+                    <span className="text-5xl font-black text-[#283339] group-hover:text-primary transition-colors">{stage.n}</span>
+                    <h4 className="text-lg font-black uppercase text-white mt-2 mb-2">{stage.title}</h4>
+                    <p className="text-sm text-gray-400">{stage.desc}</p>
                   </div>
-                  <div className="p-8 flex flex-col h-full relative z-10">
-                    <span className="text-6xl font-black text-[#283339] group-hover:text-primary transition-colors mb-4">01</span>
-                    <h4 className="text-xl font-bold uppercase mb-2">OCR &amp; NLP<br />Extraction</h4>
-                    <p className="text-sm text-gray-400 mb-6 flex-grow">EasyOCR + Tesseract pipeline with 8-step preprocessing. Extracts medications, dosages, frequencies from prescriptions. SpaCy NER for 150+ medical entities with 93.2% accuracy.</p>
-                    <div className="w-full h-1 bg-[#283339] group-hover:bg-primary transition-colors"></div>
-                  </div>
+                ))}
+              </div>
+              <div className="border-4 border-[#283339] bg-[#111618] overflow-x-auto">
+                <div className="px-6 py-4 border-b-2 border-[#283339] text-xs font-bold uppercase tracking-widest text-gray-400">On-Device Model Orchestration</div>
+                <table className="w-full text-sm min-w-[720px]">
+                  <thead>
+                    <tr className="text-left uppercase text-xs tracking-widest text-gray-500">
+                      <th className="px-6 py-4">Model</th>
+                      <th className="px-6 py-4">Size</th>
+                      <th className="px-6 py-4">Purpose</th>
+                      <th className="px-6 py-4">Spec</th>
+                      <th className="px-6 py-4 text-primary">Optimization</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {MODEL_ROWS.map((row) => (
+                      <tr key={row.model} className="border-t-2 border-[#283339]">
+                        <td className="px-6 py-4 font-black text-white">{row.model}</td>
+                        <td className="px-6 py-4 font-mono text-gray-300">{row.size}</td>
+                        <td className="px-6 py-4 text-gray-300">{row.purpose}</td>
+                        <td className="px-6 py-4 font-mono text-gray-300">{row.spec}</td>
+                        <td className="px-6 py-4 text-gray-200">{row.opt}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            {/* 04 Pipeline */}
+            <section className="border-b-4 border-[#283339] bg-[#161b1e] p-6 md:p-16" id="pipeline">
+              <div className="flex flex-col gap-2 mb-12">
+                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 04 — Three-Stage Intelligence</span>
+                <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">Extract, Then Interpret</h3>
+                <p className="text-gray-400 max-w-3xl text-lg mt-4 border-l-2 border-[#283339] pl-4">
+                  Extraction is strictly separated from interpretation to block generative hallucinations. The Python server pipeline is ported to native Dart (<span className="font-mono text-primary">clinical_rules.json</span>) so handset and server flags match exactly.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div className="border-2 border-[#283339] bg-[#111618] p-6">
+                  <span className="text-xs font-mono text-primary uppercase">Stage 1 — OCR & Geometry</span>
+                  <h4 className="text-xl font-black uppercase text-white mt-2 mb-3">Read Order</h4>
+                  <p className="text-sm text-gray-300">OpenDataLoader-PDF for digital docs preserves reading order; mobile captures use on-device Google ML Kit.</p>
                 </div>
-                <div className="group border-2 border-[#283339] bg-[#1a2327] hover:border-primary transition-colors duration-300 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <span className="material-symbols-outlined text-9xl">radiology</span>
-                  </div>
-                  <div className="p-8 flex flex-col h-full relative z-10">
-                    <span className="text-6xl font-black text-[#283339] group-hover:text-primary transition-colors mb-4">02</span>
-                    <h4 className="text-xl font-bold uppercase mb-2">X-Ray<br />Analysis</h4>
-                    <p className="text-sm text-gray-400 mb-6 flex-grow">Fine-tuned ResNet50 (50-layer CNN) for pneumonia detection: Normal, Bacterial, Viral. 93.8% accuracy with 94.3% sensitivity. 0.8s inference time with confidence scoring.</p>
-                    <div className="w-full h-1 bg-[#283339] group-hover:bg-primary transition-colors"></div>
-                  </div>
+                <div className="border-2 border-[#283339] bg-[#111618] p-6">
+                  <span className="text-xs font-mono text-primary uppercase">Stage 2 — Normalization</span>
+                  <h4 className="text-xl font-black uppercase text-white mt-2 mb-3">No Judgments</h4>
+                  <p className="text-sm text-gray-300">Raw text like <span className="font-mono text-white">Hb</span> maps to canonical <span className="font-mono text-white">Hemoglobin</span>. Flags recorded only if explicitly printed on source.</p>
                 </div>
-                <div className="group border-2 border-[#283339] bg-[#1a2327] hover:border-primary transition-colors duration-300 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <span className="material-symbols-outlined text-9xl">admin_panel_settings</span>
-                  </div>
-                  <div className="p-8 flex flex-col h-full relative z-10">
-                    <span className="text-6xl font-black text-[#283339] group-hover:text-primary transition-colors mb-4">03</span>
-                    <h4 className="text-xl font-bold uppercase mb-2">Secure<br />Linking</h4>
-                    <p className="text-sm text-gray-400 mb-6 flex-grow">JWT authentication with bcrypt hashing. Patient-controlled document sharing via unique access codes. Role-based access (Patient/Doctor/Admin) with audit trails and verification workflow.</p>
-                    <div className="w-full h-1 bg-[#283339] group-hover:bg-primary transition-colors"></div>
+                <div className="border-2 border-primary bg-[#111618] p-6 shadow-[8px_8px_0px_0px_rgba(0,229,255,0.2)]">
+                  <span className="text-xs font-mono text-primary uppercase">Stage 3 — Rule Engine</span>
+                  <h4 className="text-xl font-black uppercase text-white mt-2 mb-3">Deterministic Logic</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {RULE_ENGINES.map((rule) => (
+                      <span key={rule} className="px-2 py-1 text-xs font-bold bg-[#283339] text-white uppercase">{rule}</span>
+                    ))}
                   </div>
                 </div>
               </div>
             </section>
 
-            {/* Accuracy Section */}
-            <section className="border-b-4 border-[#283339] bg-[#161b1e] p-6 md:p-16" id="accuracy">
-              <div className="flex flex-col md:flex-row justify-between md:items-end mb-16 gap-6">
-                <div>
-                  <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 04</span>
-                  <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">Diagnostic<br />Accuracy</h3>
+            {/* 05 UX */}
+            <section className="border-b-4 border-[#283339] bg-background-light dark:bg-background-dark p-6 md:p-16" id="experience">
+              <div className="flex flex-col gap-2 mb-12">
+                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 05 — Interface</span>
+                <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">Functional UX</h3>
+                <p className="text-gray-400 max-w-3xl text-lg mt-4 border-l-2 border-[#283339] pl-4">
+                  Complex medical data made actionable for patients and clinicians — from capture to verified summary.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="border-2 border-[#283339] bg-[#1a2327] p-6">
+                  <span className="material-symbols-outlined text-3xl text-primary mb-2">lock</span>
+                  <h4 className="font-black uppercase text-white mb-2">Auth & Home</h4>
+                  <p className="text-sm text-gray-400">Google OAuth entry. Home shows Pending Sync counts from the V2Sync queue so offline work is always visible.</p>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-primary"></div>
-                    <span className="text-xs font-bold uppercase text-gray-300">AI-Assisted</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-[#283339]"></div>
-                    <span className="text-xs font-bold uppercase text-gray-500">Manual Review</span>
-                  </div>
+                <div className="border-2 border-[#283339] bg-[#1a2327] p-6">
+                  <span className="material-symbols-outlined text-3xl text-primary mb-2">document_scanner</span>
+                  <h4 className="font-black uppercase text-white mb-2">Capture</h4>
+                  <p className="text-sm text-gray-400">Auto-classification vs manual Lab / Rx / X-ray. Handles BMP, TIF, TIFF with live scan-quality feedback.</p>
+                </div>
+                <div className="border-2 border-[#283339] bg-[#1a2327] p-6">
+                  <span className="material-symbols-outlined text-3xl text-primary mb-2">query_stats</span>
+                  <h4 className="font-black uppercase text-white mb-2">Analysis & Trends</h4>
+                  <p className="text-sm text-gray-400">Standardized biomarker summaries plus longitudinal sparkline Trends against reference bands.</p>
+                </div>
+                <div className="border-2 border-[#283339] bg-[#1a2327] p-6">
+                  <span className="material-symbols-outlined text-3xl text-primary mb-2">encrypted</span>
+                  <h4 className="font-black uppercase text-white mb-2">Doctor Linking</h4>
+                  <p className="text-sm text-gray-400">Patients generate 6-character hex access codes; doctors redeem them to link accounts and start verification.</p>
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-                <div className="border-4 border-[#283339] p-6 md:p-8 bg-[#111618] flex flex-col">
-                  <h4 className="text-xl font-bold uppercase mb-8 border-b border-[#283339] pb-4 flex justify-between items-center">
-                    Processing Speed <span className="text-xs bg-[#283339] px-2 py-1 rounded">SEC / PATIENT</span>
-                  </h4>
-                  <div className="flex-grow flex flex-col justify-end gap-6 h-64">
-                    <div className="w-full">
-                      <div className="flex justify-between text-xs font-bold text-gray-400 mb-2 uppercase">
-                        <span>X-Ray Classification</span>
-                        <span className="text-white">0.8s vs 180s</span>
-                      </div>
-                      <div className="h-10 w-full bg-[#283339] relative flex items-center">
-                        <div className="h-full bg-primary absolute top-0 left-0" style={{width: '4%'}}>
-                          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-black font-bold text-xs">AI</span>
-                        </div>
-                      </div>
-                      <div className="h-4 w-full bg-[#1a2327] mt-1 relative">
-                        <div className="h-full bg-[#3b4c54] absolute top-0 left-0" style={{width: '100%'}}></div>
-                      </div>
-                    </div>
-                    <div className="w-full">
-                      <div className="flex justify-between text-xs font-bold text-gray-400 mb-2 uppercase">
-                        <span>OCR + Entity Extraction</span>
-                        <span className="text-white">3.5s vs 300s</span>
-                      </div>
-                      <div className="h-10 w-full bg-[#283339] relative flex items-center">
-                        <div className="h-full bg-primary absolute top-0 left-0" style={{width: '6%'}}>
-                          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-black font-bold text-xs">AI</span>
-                        </div>
-                      </div>
-                      <div className="h-4 w-full bg-[#1a2327] mt-1 relative">
-                        <div className="h-full bg-[#3b4c54] absolute top-0 left-0" style={{width: '100%'}}></div>
-                      </div>
-                    </div>
-                  </div>
+            </section>
+
+            {/* 06 Security */}
+            <section className="border-b-4 border-[#283339] bg-[#161b1e] p-6 md:p-16" id="security">
+              <div className="flex flex-col gap-2 mb-12">
+                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 06 — Security & Effort</span>
+                <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">Privacy By Design</h3>
+                <p className="text-gray-400 max-w-3xl text-lg mt-4 border-l-2 border-[#283339] pl-4">
+                  ~480MB of bundled models is a deliberate trade-off: on-device de-identification means only structured JSON reaches the cloud.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div className="border-2 border-[#283339] bg-[#111618] p-6">
+                  <h4 className="font-black uppercase text-primary mb-2">Access Control</h4>
+                  <p className="text-sm text-gray-300">JWT (HS256) + role guards. Doctor registration gated by <span className="font-mono text-white">DOCTOR_ACCESS_CODE</span> secret.</p>
                 </div>
-                <div className="border-4 border-[#283339] p-6 md:p-8 bg-[#111618] flex flex-col">
-                  <h4 className="text-xl font-bold uppercase mb-8 border-b border-[#283339] pb-4 flex justify-between items-center">
-                    Accuracy Rate <span className="text-xs bg-[#283339] px-2 py-1 rounded">% CORRECT</span>
-                  </h4>
-                  <div className="flex justify-around items-end h-64 w-full px-4 gap-4">
-                    <div className="w-1/3 h-full flex flex-col justify-end group">
-                      <span className="text-center font-bold text-2xl mb-2 text-gray-500 group-hover:text-white transition-colors">82%</span>
-                      <div className="w-full bg-[#283339] h-[82%] relative overflow-hidden group-hover:bg-[#3b4c54] transition-colors border-t-2 border-x-2 border-[#3b4c54]">
-                        <div className="text-center pt-2 text-xs font-mono text-gray-400">Manual</div>
+                <div className="border-2 border-[#283339] bg-[#111618] p-6">
+                  <h4 className="font-black uppercase text-primary mb-2">Verification Loop</h4>
+                  <p className="text-sm text-gray-300">Doctors annotate AI findings and digitally sign off; verification syncs back to the patient dashboard.</p>
+                </div>
+                <div className="border-2 border-[#283339] bg-[#111618] p-6">
+                  <h4 className="font-black uppercase text-primary mb-2">Testing</h4>
+                  <p className="text-sm text-gray-300"><span className="font-black text-white">248</span> mobile tests + <span className="font-black text-white">49</span> backend tests over arithmetic and rule engines.</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="border-4 border-[#283339] bg-[#111618] p-6">
+                  <h4 className="font-black uppercase text-white mb-4 border-b border-[#283339] pb-3">Lines by Language</h4>
+                  {[
+                    { lang: 'Dart — 81 files', lines: '22,665', pct: 45 },
+                    { lang: 'Python — 35 files', lines: '7,641', pct: 15 },
+                    { lang: 'Other (JS, JSON) — 92 files', lines: '19,793', pct: 40 }
+                  ].map((row) => (
+                    <div key={row.lang} className="mb-4">
+                      <div className="flex justify-between text-xs font-bold uppercase text-gray-400 mb-1">
+                        <span>{row.lang}</span><span className="text-white">{row.lines} · {row.pct}%</span>
                       </div>
-                      <span className="text-center text-xs font-bold uppercase mt-3 text-gray-500">Human Review</span>
-                    </div>
-                    <div className="w-1/3 h-full flex flex-col justify-end group">
-                      <span className="text-center font-bold text-2xl mb-2 text-primary">93.8%</span>
-                      <div className="w-full bg-primary h-[93%] relative overflow-hidden border-t-2 border-x-2 border-cyan-300 shadow-[0_0_20px_rgba(0,229,255,0.3)]">
-                        <div className="text-center pt-2 text-xs font-mono text-[#111618] font-bold">ResNet50</div>
+                      <div className="h-4 bg-[#283339]">
+                        <div className="h-full bg-primary" style={{ width: `${row.pct}%` }}></div>
                       </div>
-                      <span className="text-center text-xs font-bold uppercase mt-3 text-white">AI-Powered</span>
                     </div>
-                  </div>
+                  ))}
+                </div>
+                <div className="border-4 border-[#283339] bg-[#111618] p-6">
+                  <h4 className="font-black uppercase text-white mb-4 border-b border-[#283339] pb-3">Lines by Layer</h4>
+                  {[
+                    { layer: 'Mobile App', lines: '24,752 · 110 files', pct: 50 },
+                    { layer: 'Web Frontend', lines: '11,738 · 40 files', pct: 24 },
+                    { layer: 'Backend', lines: '10,100 · 45 files', pct: 20 },
+                    { layer: 'DevOps / Docs', lines: '3,509 · 13 files', pct: 7 }
+                  ].map((row) => (
+                    <div key={row.layer} className="mb-4">
+                      <div className="flex justify-between text-xs font-bold uppercase text-gray-400 mb-1">
+                        <span>{row.layer}</span><span className="text-white">{row.lines}</span>
+                      </div>
+                      <div className="h-4 bg-[#283339]">
+                        <div className="h-full bg-primary" style={{ width: `${row.pct}%` }}></div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </section>
@@ -563,7 +716,7 @@ function App() {
             {/* Tech Stack Section */}
             <section className="border-b-4 border-[#283339] bg-background-light dark:bg-background-dark p-6 md:p-16" id="stack">
               <div className="flex flex-col gap-2 mb-12">
-                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 05</span>
+                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 07</span>
                 <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">The Stack</h3>
                 <p className="text-gray-400 max-w-3xl text-lg mt-4 border-l-2 border-[#283339] pl-4">
                   Live language distribution from the IntelliMed repository. Top contributor: {githubData.topContributor || 'N/A'} ({githubData.topContributions} commits).
@@ -585,66 +738,34 @@ function App() {
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                <div className="bg-[#111618] border-2 border-[#283339] p-8 flex flex-col items-center justify-center hover:bg-[#1a2327] hover:border-primary transition-all group">
-                  <span className="material-symbols-outlined text-4xl text-gray-500 mb-2 group-hover:text-primary">bolt</span>
-                  <span className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter">FastAPI</span>
-                  <span className="text-xs text-gray-500 mt-1">Backend</span>
-                </div>
-                <div className="bg-[#111618] border-2 border-[#283339] p-8 flex flex-col items-center justify-center hover:bg-[#1a2327] hover:border-primary transition-all group">
-                  <span className="material-symbols-outlined text-4xl text-gray-500 mb-2 group-hover:text-primary">psychology</span>
-                  <span className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter">PyTorch</span>
-                  <span className="text-xs text-gray-500 mt-1">ML Framework</span>
-                </div>
-                <div className="bg-[#111618] border-2 border-[#283339] p-8 flex flex-col items-center justify-center hover:bg-[#1a2327] hover:border-primary transition-all group">
-                  <span className="material-symbols-outlined text-4xl text-gray-500 mb-2 group-hover:text-primary">code</span>
-                  <span className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter">React</span>
-                  <span className="text-xs text-gray-500 mt-1">Frontend</span>
-                </div>
-                <div className="bg-[#111618] border-2 border-[#283339] p-8 flex flex-col items-center justify-center hover:bg-[#1a2327] hover:border-primary transition-all group">
-                  <span className="material-symbols-outlined text-4xl text-gray-500 mb-2 group-hover:text-primary">database</span>
-                  <span className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter">Prisma</span>
-                  <span className="text-xs text-gray-500 mt-1">ORM</span>
-                </div>
-                <div className="bg-[#111618] border-2 border-[#283339] p-8 flex flex-col items-center justify-center hover:bg-[#1a2327] hover:border-primary transition-all group">
-                  <span className="material-symbols-outlined text-4xl text-gray-500 mb-2 group-hover:text-primary">storage</span>
-                  <span className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter">Postgres</span>
-                  <span className="text-xs text-gray-500 mt-1">Database</span>
-                </div>
-                <div className="bg-[#111618] border-2 border-[#283339] p-8 flex flex-col items-center justify-center hover:bg-[#1a2327] hover:border-primary transition-all group">
-                  <span className="material-symbols-outlined text-4xl text-gray-500 mb-2 group-hover:text-primary">image</span>
-                  <span className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter">OpenCV</span>
-                  <span className="text-xs text-gray-500 mt-1">Vision</span>
-                </div>
-                <div className="bg-[#111618] border-2 border-[#283339] p-8 flex flex-col items-center justify-center hover:bg-[#1a2327] hover:border-primary transition-all group">
-                  <span className="material-symbols-outlined text-4xl text-gray-500 mb-2 group-hover:text-primary">text_fields</span>
-                  <span className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter">SpaCy</span>
-                  <span className="text-xs text-gray-500 mt-1">NLP</span>
-                </div>
-                <div className="bg-[#111618] border-2 border-[#283339] p-8 flex flex-col items-center justify-center hover:bg-[#1a2327] hover:border-primary transition-all group">
-                  <span className="material-symbols-outlined text-4xl text-gray-500 mb-2 group-hover:text-primary">article</span>
-                  <span className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter">EasyOCR</span>
-                  <span className="text-xs text-gray-500 mt-1">OCR Engine</span>
-                </div>
-                <div className="bg-[#111618] border-2 border-[#283339] p-8 flex flex-col items-center justify-center hover:bg-[#1a2327] hover:border-primary transition-all group">
-                  <span className="material-symbols-outlined text-4xl text-gray-500 mb-2 group-hover:text-primary">hub</span>
-                  <span className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter">Vite</span>
-                  <span className="text-xs text-gray-500 mt-1">Bundler</span>
-                </div>
-                <div className="bg-[#111618] border-2 border-[#283339] p-8 flex flex-col items-center justify-center hover:bg-[#1a2327] hover:border-primary transition-all group">
-                  <span className="material-symbols-outlined text-4xl text-gray-500 mb-2 group-hover:text-primary">security</span>
-                  <span className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter">JWT</span>
-                  <span className="text-xs text-gray-500 mt-1">Auth</span>
-                </div>
+                {[
+                  { icon: 'smartphone', name: 'Flutter', sub: 'Edge Client' },
+                  { icon: 'bolt', name: 'FastAPI', sub: 'Backend' },
+                  { icon: 'psychology', name: 'PyTorch', sub: 'ResNet-50' },
+                  { icon: 'memory', name: 'ONNX RT', sub: 'Opset 17' },
+                  { icon: 'smart_toy', name: 'Qwen3', sub: 'Q4_0 GGUF' },
+                  { icon: 'code', name: 'React', sub: 'Web SPA' },
+                  { icon: 'database', name: 'Prisma', sub: 'ORM' },
+                  { icon: 'storage', name: 'Postgres', sub: 'Database' },
+                  { icon: 'cloud', name: 'Supabase', sub: 'Signed URLs' },
+                  { icon: 'security', name: 'JWT HS256', sub: 'Auth' }
+                ].map((tech) => (
+                  <div key={tech.name} className="bg-[#111618] border-2 border-[#283339] p-8 flex flex-col items-center justify-center hover:bg-[#1a2327] hover:border-primary transition-all group">
+                    <span className="material-symbols-outlined text-4xl text-gray-500 mb-2 group-hover:text-primary">{tech.icon}</span>
+                    <span className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter">{tech.name}</span>
+                    <span className="text-xs text-gray-500 mt-1">{tech.sub}</span>
+                  </div>
+                ))}
               </div>
             </section>
 
             {/* Demo Screenshots Section */}
             <section className="border-b-4 border-[#283339] bg-background-light dark:bg-background-dark p-6 md:p-16" id="demo">
               <div className="flex flex-col gap-2 mb-12">
-                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 06</span>
+                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 08</span>
                 <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">Project Demo</h3>
                 <p className="text-gray-400 max-w-2xl text-lg mt-4 border-l-2 border-[#283339] pl-4">
-                  Real-world screenshots showcasing the IntelliMed-AI platform in action from patient dashboards to AI-powered medical analysis results.
+                  Patient dashboards, edge-processed lab summaries with sparkline trends, X-ray classification, and the doctor digital sign-off loop.
                 </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -659,7 +780,7 @@ function App() {
                   </div>
                   <div className="p-6 border-t-4 border-[#283339]">
                     <h4 className="text-xl font-bold uppercase text-white mb-2">Patient Dashboard</h4>
-                    <p className="text-sm text-gray-400">Document upload interface with drag-and-drop functionality, real-time AI processing status, and comprehensive medical history view.</p>
+                    <p className="text-sm text-gray-400">Offline-first capture with Pending Sync (V2Sync queue), biomarker summaries, and sparkline Trends against reference bands.</p>
                   </div>
                 </div>
 
@@ -673,8 +794,8 @@ function App() {
                     />
                   </div>
                   <div className="p-6 border-t-4 border-[#283339]">
-                    <h4 className="text-xl font-bold uppercase text-white mb-2">X-Ray Classification</h4>
-                    <p className="text-sm text-gray-400">ResNet50-powered pneumonia detection with confidence scores, classification results (Normal/Bacterial/Viral), and detailed analysis visualization.</p>
+                    <h4 className="text-xl font-bold uppercase text-white mb-2">On-Device X-Ray</h4>
+                    <p className="text-sm text-gray-400">ResNet-50 ONNX (opset 17, ~94MB) running on-device with NPU/CPU parity — raw images never leave the handset.</p>
                   </div>
                 </div>
 
@@ -688,8 +809,8 @@ function App() {
                     />
                   </div>
                   <div className="p-6 border-t-4 border-[#283339]">
-                    <h4 className="text-xl font-bold uppercase text-white mb-2">Prescription Parsing</h4>
-                    <p className="text-sm text-gray-400">EasyOCR and Tesseract text extraction with medical NER, structured medication data with dosages, frequencies, and durations displayed.</p>
+                    <h4 className="text-xl font-bold uppercase text-white mb-2">Lab Structuring</h4>
+                    <p className="text-sm text-gray-400">ML Kit OCR + Y-axis projection table rebuild, normalized to the 10-key clinical_rules.json schema with panic-value flags.</p>
                   </div>
                 </div>
 
@@ -704,7 +825,7 @@ function App() {
                   </div>
                   <div className="p-6 border-t-4 border-[#283339]">
                     <h4 className="text-xl font-bold uppercase text-white mb-2">Doctor Verification</h4>
-                    <p className="text-sm text-gray-400">Doctor dashboard showing patient documents, AI analysis results verification interface, clinical notes addition, and digital signature capability.</p>
+                    <p className="text-sm text-gray-400">6-char hex code linking, origin-tagged (web/app) unified view, annotation + digital sign-off synced back to the patient.</p>
                   </div>
                 </div>
               </div>
@@ -718,7 +839,7 @@ function App() {
             {/* Team Section */}
             <section className="p-6 md:p-16 bg-[#161b1e]" id="team">
               <div className="flex flex-col gap-2 mb-12 text-center md:text-left">
-                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 07</span>
+                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 09</span>
                 <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">Project Team</h3>
                 <p className="text-gray-400 text-lg mt-2">Department of Computer Science & Engineering</p>
               </div>
@@ -766,7 +887,7 @@ function App() {
                   <p className="text-gray-500 max-w-sm mb-6">
                     Department of Computer Science & Engineering<br />
                     Manipal University Jaipur<br />
-                    PBL Project 2026
+                    PBL Project 2026 — Privacy-First Clinical Intelligence
                   </p>
                   <div className="flex gap-4">
                     <a className="text-gray-400 hover:text-primary font-bold uppercase text-sm" href={REPO_URL} target="_blank" rel="noopener noreferrer">GitHub</a>
