@@ -828,6 +828,102 @@ function App() {
                     <p className="text-sm text-gray-400">6-char hex code linking, origin-tagged (web/app) unified view, annotation + digital sign-off synced back to the patient.</p>
                   </div>
                 </div>
+
+              </div>
+
+              {/* Mobile App Screenshots — portrait phone screens */}
+              <div className="mt-8 grid grid-cols-2 md:grid-cols-3 gap-8">
+
+                {/* App Screenshot 5 — Auth / Welcome */}
+                <div className="group border-4 border-[#283339] bg-[#1a2327] hover:border-primary transition-all duration-300">
+                  <div className="aspect-[9/16] relative overflow-hidden">
+                    <img
+                      src="./app_auth.jpeg"
+                      alt="IntelliMed-AI Welcome / Sign-In Screen"
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="p-4 border-t-4 border-[#283339]">
+                    <h4 className="text-base font-bold uppercase text-white mb-1">Welcome &amp; Auth</h4>
+                    <p className="text-xs text-gray-400">Google OAuth entry point. Sign-in syncs structured results to the doctor dashboard; offline inference runs without a network connection once authenticated.</p>
+                  </div>
+                </div>
+
+                {/* App Screenshot 6 — Home Dashboard */}
+                <div className="group border-4 border-[#283339] bg-[#1a2327] hover:border-primary transition-all duration-300">
+                  <div className="aspect-[9/16] relative overflow-hidden">
+                    <img
+                      src="./app_home.jpeg"
+                      alt="IntelliMed-AI Home Dashboard"
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="p-4 border-t-4 border-[#283339]">
+                    <h4 className="text-base font-bold uppercase text-white mb-1">Home Dashboard</h4>
+                    <p className="text-xs text-gray-400">At-a-glance summary of Reports, Documents, Captures, and Pending Sync count from the V2Sync queue — offline work always visible with quick-action shortcuts.</p>
+                  </div>
+                </div>
+
+                {/* App Screenshot 7 — Capture */}
+                <div className="group border-4 border-[#283339] bg-[#1a2327] hover:border-primary transition-all duration-300">
+                  <div className="aspect-[9/16] relative overflow-hidden">
+                    <img
+                      src="./app_capture.jpeg"
+                      alt="IntelliMed-AI Capture Screen"
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="p-4 border-t-4 border-[#283339]">
+                    <h4 className="text-base font-bold uppercase text-white mb-1">Edge Capture</h4>
+                    <p className="text-xs text-gray-400">Auto or manual Lab / Rx / X-ray classification. Perspective correction and Laplacian blur/glare gates run before OCR; supports PDF, JPG, PNG, WEBP, BMP, TIF/TIFF.</p>
+                  </div>
+                </div>
+
+                {/* App Screenshot 8 — Profile & Doctor Linking */}
+                <div className="group border-4 border-[#283339] bg-[#1a2327] hover:border-primary transition-all duration-300">
+                  <div className="aspect-[9/16] relative overflow-hidden">
+                    <img
+                      src="./app_profile.jpeg"
+                      alt="IntelliMed-AI Patient Profile and Doctor Linking"
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="p-4 border-t-4 border-[#283339]">
+                    <h4 className="text-base font-bold uppercase text-white mb-1">Profile &amp; Doctor Linking</h4>
+                    <p className="text-xs text-gray-400">Patient generates a 6-character access code; doctors redeem it to link accounts and start the verification loop. Connected doctors and profile in one place.</p>
+                  </div>
+                </div>
+
+                {/* App Screenshot 9 — Lab Report Detail */}
+                <div className="group border-4 border-[#283339] bg-[#1a2327] hover:border-primary transition-all duration-300">
+                  <div className="aspect-[9/16] relative overflow-hidden">
+                    <img
+                      src="./app_lab_report.jpeg"
+                      alt="IntelliMed-AI On-Device Lab Report Structured Result"
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="p-4 border-t-4 border-[#283339]">
+                    <h4 className="text-base font-bold uppercase text-white mb-1">Structured Lab Report</h4>
+                    <p className="text-xs text-gray-400">AI-generated standardized summary with 25 measurements — biomarker values, reference ranges, derived indices (Mentzer Index), and key findings fully on-device.</p>
+                  </div>
+                </div>
+
+                {/* App Screenshot 10 — Trends */}
+                <div className="group border-4 border-[#283339] bg-[#1a2327] hover:border-primary transition-all duration-300">
+                  <div className="aspect-[9/16] relative overflow-hidden">
+                    <img
+                      src="./app_trends.jpeg"
+                      alt="IntelliMed-AI Longitudinal Biomarker Trends"
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="p-4 border-t-4 border-[#283339]">
+                    <h4 className="text-base font-bold uppercase text-white mb-1">Longitudinal Trends</h4>
+                    <p className="text-xs text-gray-400">Sparkline charts for every tracked biomarker (Hemoglobin, Hematocrit, Lymphocyte, Eosinophils, etc.) across multiple readings — latest value and date at a glance.</p>
+                  </div>
+                </div>
+
               </div>
               <div className="mt-12 text-center">
                 <a href={REPO_URL} target="_blank" rel="noopener noreferrer" className="inline-block px-8 py-4 bg-transparent border-2 border-primary text-primary text-lg font-bold uppercase tracking-wider hover:bg-primary hover:text-[#111618] transition-all">
