@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const REPO_OWNER = 'sarthakroutray'
 const REPO_NAME = 'IntelliMed-AI'
@@ -15,19 +15,20 @@ const GITHUB_FALLBACK = {
   openIssues: 0,
   watchers: 0,
   defaultBranch: 'main',
-  pushedAt: '2026-04-09T21:43:18Z',
-  updatedAt: '2026-04-09T21:43:22Z',
-  latestCommitSha: '3f560d9',
-  latestCommitMessage: 'Feat: Update Readme and Documentation to Latest Version',
-  latestCommitDate: '2026-04-09T21:43:11Z',
+  pushedAt: '2026-11-10T00:09:16Z',
+  updatedAt: '2026-11-10T00:09:20Z',
+  latestCommitSha: '19850de',
+  latestCommitMessage: 'fix: resolve doctor portal issues, add doctor documents API, and fix navigation',
+  latestCommitDate: '2026-11-10T00:09:16Z',
   contributors: 1,
-  branches: 2,
+  branches: 3,
   topContributor: 'sarthakroutray',
-  topContributions: 21,
+  topContributions: 43,
   languages: [
-    { name: 'Dart', percentage: 45 },
-    { name: 'Python', percentage: 15 },
-    { name: 'Other', percentage: 40 }
+    { name: 'Dart', percentage: 57 },
+    { name: 'Python', percentage: 23 },
+    { name: 'JavaScript', percentage: 19 },
+    { name: 'Other', percentage: 1 }
   ]
 }
 
@@ -126,7 +127,8 @@ const PIPELINE_STAGES = [
 
 const MODEL_ROWS = [
   { model: 'ResNet-50', size: '~94MB', purpose: 'Chest X-ray classification', spec: 'ONNX, opset 17', opt: 'NPU/CPU runtime parity' },
-  { model: 'Qwen3-0.6B', size: '~382MB', purpose: 'Clinical explanations', spec: 'Q4_0 GGUF', opt: 'Empty think-block prefill cuts tokens ~70%' }
+  { model: 'Qwen3-0.6B', size: '~382MB', purpose: 'Clinical explanations', spec: 'Q4_0 GGUF', opt: 'Empty think-block prefill cuts tokens ~70%' },
+  { model: 'Falconsai T5-small', size: '~94MB', purpose: 'Medical text summarization & standardization', spec: 'ONNX int8 (encoder/decoder)', opt: 'Pinned SentencePiece Dart runtime parity' }
 ]
 
 
@@ -418,6 +420,76 @@ const CLINICAL_FORMULAS = [
     threshold: 'Prevents false diagnosis of symptomatic hypocalcemia when ionized free calcium remains physiologically preserved.',
     citation: 'Payne et al. (BMJ 1973)',
     doi: '10.1136/bmj.4.5893.643'
+  },
+  {
+    name: 'BUN / Creatinine Ratio',
+    specialty: 'Nephrology / Renal Hemodynamics',
+    badge: 'Azotemia Differentiation',
+    purpose: 'Distinguishing prerenal azotemia from intrinsic acute tubular necrosis',
+    formula: 'BUN / Cr Ratio = Serum BUN (mg/dL) / Serum Creatinine (mg/dL)',
+    params: [
+      'BUN: Blood Urea Nitrogen (mg/dL)',
+      'Serum Creatinine: Serum Creatinine (mg/dL)'
+    ],
+    threshold: 'Ratio > 20:1 with elevated Cr suggests prerenal azotemia (dehydration, volume depletion, heart failure); Ratio < 10–15:1 indicates intrinsic renal parenchymal injury.',
+    citation: 'Baum et al. (NEJM 1975)',
+    doi: '10.1056/NEJM197508282930906'
+  },
+  {
+    name: 'Albumin-to-Globulin (A/G) Ratio',
+    specialty: 'Hepatology / Clinical Immunology',
+    badge: 'Synthetic & Proteinemia Screen',
+    purpose: 'Screening for hepatic synthetic impairment, nephrotic protein loss, or paraproteinemias',
+    formula: 'A/G Ratio = Serum Albumin (g/dL) / (Total Protein - Serum Albumin [g/dL])',
+    params: [
+      'Serum Albumin: Serum Albumin concentration (g/dL)',
+      'Total Protein: Total serum protein concentration (g/dL)'
+    ],
+    threshold: 'Normal reference: 1.1–2.5. Inverted A/G ratio (< 1.0) alerts to advanced hepatic cirrhosis, nephrotic syndrome, or monoclonal gammopathy (e.g., Multiple Myeloma).',
+    citation: 'Peters (Adv Protein Chem 1985)',
+    doi: '10.1016/S0065-3233(08)60390-3'
+  },
+  {
+    name: 'Non-HDL Cholesterol',
+    specialty: 'Cardiovascular / Lipidology',
+    badge: 'Atherogenic Burden',
+    purpose: 'Quantifying total circulating atherogenic apolipoprotein B–containing lipoproteins',
+    formula: 'Non-HDL-C (mg/dL) = Total Cholesterol (mg/dL) - HDL Cholesterol (mg/dL)',
+    params: [
+      'Total Cholesterol: Total serum cholesterol (mg/dL)',
+      'HDL-C: High-Density Lipoprotein Cholesterol (mg/dL)'
+    ],
+    threshold: 'Optimal target: < 130 mg/dL (< 100 mg/dL for high-risk ASCVD). Superior predictor of cardiovascular morbidity compared to LDL alone in hypertriglyceridemic states.',
+    citation: 'Grundy et al. (Circulation 2019 AHA/ACC Guideline)',
+    doi: '10.1161/CIR.0000000000000625'
+  },
+  {
+    name: 'Transferrin Saturation Index (TSAT)',
+    specialty: 'Hematology / Iron Metabolism',
+    badge: 'Iron Bioavailability',
+    purpose: 'Differentiating iron-deficiency anemia from anemia of chronic disease and hemochromatosis',
+    formula: 'TSAT (%) = (Serum Iron [μg/dL] / Total Iron-Binding Capacity [μg/dL]) × 100',
+    params: [
+      'Serum Iron: Circulating ferric iron (μg/dL)',
+      'TIBC: Total iron-binding capacity (μg/dL)'
+    ],
+    threshold: 'Normal reference: 20%–50%. TSAT < 20% confirms absolute iron-deficient erythropoiesis; TSAT > 45% flags systemic iron overload / hereditary hemochromatosis.',
+    citation: 'Pfeiffer & Looker (Am J Clin Nutr 2017)',
+    doi: '10.3945/ajcn.116.143776'
+  },
+  {
+    name: 'Neutrophil-to-Lymphocyte Ratio (NLR)',
+    specialty: 'Hematology / Critical Care Immunology',
+    badge: 'Systemic Inflammation Marker',
+    purpose: 'Rapid bedside quantification of systemic occult inflammation and physiological stress',
+    formula: 'NLR = Absolute Neutrophil Count (ANC) / Absolute Lymphocyte Count (ALC)',
+    params: [
+      'Neutrophils: Segmented + band neutrophil count (cells/μL or %)',
+      'Lymphocytes: Total lymphocyte count (cells/μL or %)'
+    ],
+    threshold: 'Normal reference: 1.0–3.0. NLR > 4.5 signals severe acute systemic inflammatory response, occult bacterial sepsis, or adverse cardiovascular/oncologic prognosis.',
+    citation: 'Zahorec (Bratisl Lek Listy 2001)',
+    doi: '10.4149/BLL_2001_002'
   }
 ]
 
@@ -560,9 +632,45 @@ const BIBTEX_ENTRIES = `@article{kaissis2020secure,
   pages={172--180},
   year={2023},
   doi={10.1038/s41586-023-06291-2}
-}`
+}
 
-const RULE_ENGINES = ['Anion Gap', 'De Ritis Ratio', 'Corrected Calcium', 'Bilirubin Consistency', 'Mentzer Index', 'eGFR (CKD-EPI 2021)', 'Arithmetic consistency checks', 'Panic-value flags']
+@article{grundy2019aha,
+  title={2018 AHA/ACC Guideline on the Management of Blood Cholesterol},
+  author={Grundy, Scott M and Stone, Neil J and Bailey, Alison L and others},
+  journal={Circulation},
+  volume={139},
+  number={25},
+  pages={e1082--e1143},
+  year={2019},
+  doi={10.1161/CIR.0000000000000625}
+}
+
+@article{zahorec2001ratio,
+  title={Ratio of neutrophil to lymphocyte counts--rapid and simple parameter of systemic inflammation and stress in critically ill},
+  author={Zahorec, R},
+  journal={Bratislavske lekarske listy},
+  volume={102},
+  number={1},
+  pages={5--14},
+  year={2001}
+}
+`
+
+const RULE_ENGINES = [
+  'eGFR (CKD-EPI 2021 race-free)',
+  'Serum Anion Gap',
+  'De Ritis Ratio (AST/ALT)',
+  'Mentzer Index',
+  "Payne's Corrected Calcium",
+  'BUN/Creatinine Ratio',
+  'Albumin-Globulin Ratio',
+  'Non-HDL Cholesterol',
+  'Transferrin Saturation (TSAT)',
+  'Neutrophil-to-Lymphocyte (NLR)',
+  'Panic-Value Thresholds (Critical Alerts)',
+  'Arithmetic Consistency Checks (Total = Direct + Indirect Bilirubin, Protein Balance)',
+  '43 Multi-Analyte Clinical Pattern Engines'
+]
 
 function App() {
     const [selectedDomain, setSelectedDomain] = useState('all')
@@ -860,7 +968,7 @@ function App() {
             {/* 01 Research Gap + Prior Art */}
             <section className="border-b-4 border-[#283339] bg-[#161b1e] p-6 md:p-16" id="genesis">
               <div className="flex flex-col gap-2 mb-12">
-                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 01 — Research Gap</span>
+                <span className="text-primary font-mono text-sm tracking-widest uppercase">{'//'} Section 01 — Research Gap</span>
                 <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">Prior Art Falls Short.<br />We Close The Gap.</h3>
                 <p className="text-gray-300 max-w-3xl text-lg mt-4 border-l-4 border-primary pl-4">
                   No single system combines raw capture, OCR extraction, deterministic interpretation, a doctor-verification loop, and a 100% offline privacy-preserving mobile pipeline. Point solutions do one job — IntelliMed-AI unifies all five.
@@ -952,7 +1060,7 @@ function App() {
             <section className="border-b-4 border-[#283339] bg-background-light dark:bg-background-dark p-6 md:p-16" id="literature">
               <div className="flex flex-col gap-2 mb-12">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 02 — Academic Literature</span>
+                  <span className="text-primary font-mono text-sm tracking-widest uppercase">{'//'} Section 02 — Academic Literature</span>
                   <span className="px-2 py-0.5 text-[11px] font-bold bg-primary/20 text-primary border border-primary/40 rounded uppercase">Peer-Reviewed Foundations</span>
                 </div>
                 <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">
@@ -1084,7 +1192,7 @@ function App() {
               <div className="border-4 border-[#283339] bg-[#111618] p-6 md:p-8 mb-12">
                 <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 border-b-2 border-[#283339] pb-6 mb-8">
                   <div>
-                    <span className="text-primary font-mono text-xs uppercase tracking-widest">// Mathematical Formulations</span>
+                    <span className="text-primary font-mono text-xs uppercase tracking-widest">{'//'} Mathematical Formulations</span>
                     <h4 className="text-2xl md:text-3xl font-black uppercase text-white tracking-tight">
                       Validated Clinical Calculations (Dart &amp; Python)
                     </h4>
@@ -1149,7 +1257,7 @@ function App() {
               <div className="border-4 border-[#283339] bg-[#111618] overflow-x-auto mb-12">
                 <div className="px-6 py-4 border-b-2 border-[#283339] flex flex-wrap justify-between items-center gap-2">
                   <div>
-                    <div className="text-xs font-bold uppercase tracking-widest text-primary font-mono">// Benchmark Comparison</div>
+                    <div className="text-xs font-bold uppercase tracking-widest text-primary font-mono">{'//'} Benchmark Comparison</div>
                     <div className="text-lg font-black uppercase text-white">Prior Art Architectural Matrix</div>
                   </div>
                   <span className="text-xs font-mono text-gray-400">Comparing SOTA CDSS, Pure LLMs &amp; IntelliMed-AI</span>
@@ -1217,7 +1325,7 @@ function App() {
             {/* 02 Architecture */}
             <section className="border-b-4 border-[#283339] bg-[#161b1e] p-6 md:p-16" id="architecture">
               <div className="flex flex-col gap-2 mb-12">
-                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 03 — Dual-Client Design</span>
+                <span className="text-primary font-mono text-sm tracking-widest uppercase">{'//'} Section 03 — Dual-Client Design</span>
                 <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">Hybrid Cloud / Edge</h3>
                 <p className="text-gray-400 max-w-3xl text-lg mt-4 border-l-2 border-[#283339] pl-4">
                   High-throughput web review for clinicians + high-privacy offline capture for patients. Five-layer stack with API version freezing: legacy web at <span className="font-mono text-primary">/api/v1</span>, structured mobile ingest at <span className="font-mono text-primary">/api/v2</span>.
@@ -1256,7 +1364,7 @@ function App() {
             {/* 03 Edge core */}
             <section className="border-b-4 border-[#283339] bg-background-light dark:bg-background-dark p-6 md:p-16" id="edge">
               <div className="flex flex-col gap-2 mb-12">
-                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 04 — Mobile Deep Dive</span>
+                <span className="text-primary font-mono text-sm tracking-widest uppercase">{'//'} Section 04 — Mobile Deep Dive</span>
                 <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">Edge Intelligence Core</h3>
                 <p className="text-gray-400 max-w-3xl text-lg mt-4 border-l-2 border-[#283339] pl-4">
                   The Flutter Android app is the primary deliverable — a self-contained offline-first node. Six-stage local pipeline, mid-range hardware friendly, no multi-minute stalls.
@@ -1301,7 +1409,7 @@ function App() {
             {/* 04 Pipeline */}
             <section className="border-b-4 border-[#283339] bg-[#161b1e] p-6 md:p-16" id="pipeline">
               <div className="flex flex-col gap-2 mb-12">
-                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 05 — Three-Stage Intelligence</span>
+                <span className="text-primary font-mono text-sm tracking-widest uppercase">{'//'} Section 05 — Three-Stage Intelligence</span>
                 <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">Extract, Then Interpret</h3>
                 <p className="text-gray-400 max-w-3xl text-lg mt-4 border-l-2 border-[#283339] pl-4">
                   Extraction is strictly separated from interpretation to block generative hallucinations. The Python server pipeline is ported to native Dart (<span className="font-mono text-primary">clinical_rules.json</span>) so handset and server flags match exactly.
@@ -1333,7 +1441,7 @@ function App() {
             {/* 05 UX */}
             <section className="border-b-4 border-[#283339] bg-background-light dark:bg-background-dark p-6 md:p-16" id="experience">
               <div className="flex flex-col gap-2 mb-12">
-                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 06 — Interface</span>
+                <span className="text-primary font-mono text-sm tracking-widest uppercase">{'//'} Section 06 — Interface</span>
                 <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">Functional UX</h3>
                 <p className="text-gray-400 max-w-3xl text-lg mt-4 border-l-2 border-[#283339] pl-4">
                   Complex medical data made actionable for patients and clinicians — from capture to verified summary.
@@ -1366,7 +1474,7 @@ function App() {
             {/* 06 Security */}
             <section className="border-b-4 border-[#283339] bg-[#161b1e] p-6 md:p-16" id="security">
               <div className="flex flex-col gap-2 mb-12">
-                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 10 — Security & Effort</span>
+                <span className="text-primary font-mono text-sm tracking-widest uppercase">{'//'} Section 10 — Security & Effort</span>
                 <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">Privacy By Design</h3>
                 <p className="text-gray-400 max-w-3xl text-lg mt-4 border-l-2 border-[#283339] pl-4">
                   ~480MB of bundled models is a deliberate trade-off: on-device de-identification means only structured JSON reaches the cloud.
@@ -1428,7 +1536,7 @@ function App() {
             {/* Tech Stack Section */}
             <section className="border-b-4 border-[#283339] bg-background-light dark:bg-background-dark p-6 md:p-16" id="stack">
               <div className="flex flex-col gap-2 mb-12">
-                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 07</span>
+                <span className="text-primary font-mono text-sm tracking-widest uppercase">{'//'} Section 07</span>
                 <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">The Stack</h3>
                 <p className="text-gray-400 max-w-3xl text-lg mt-4 border-l-2 border-[#283339] pl-4">
                   Live language distribution from the IntelliMed repository. Top contributor: {githubData.topContributor || 'N/A'} ({githubData.topContributions} commits).
@@ -1449,13 +1557,15 @@ function App() {
                   )}
                 </div>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                 {[
                   { icon: 'smartphone', name: 'Flutter', sub: 'Edge Client' },
                   { icon: 'bolt', name: 'FastAPI', sub: 'Backend' },
                   { icon: 'psychology', name: 'PyTorch', sub: 'ResNet-50' },
                   { icon: 'memory', name: 'ONNX RT', sub: 'Opset 17' },
                   { icon: 'smart_toy', name: 'Qwen3', sub: 'Q4_0 GGUF' },
+                  { icon: 'translate', name: 'T5-Small', sub: 'Summarizer' },
+                  { icon: 'picture_as_pdf', name: 'OpenData', sub: 'PDF Engine' },
                   { icon: 'code', name: 'React', sub: 'Web SPA' },
                   { icon: 'database', name: 'Prisma', sub: 'ORM' },
                   { icon: 'storage', name: 'Postgres', sub: 'Database' },
@@ -1474,7 +1584,7 @@ function App() {
             {/* Demo Screenshots Section */}
             <section className="border-b-4 border-[#283339] bg-background-light dark:bg-background-dark p-6 md:p-16" id="demo">
               <div className="flex flex-col gap-2 mb-12">
-                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 08</span>
+                <span className="text-primary font-mono text-sm tracking-widest uppercase">{'//'} Section 08</span>
                 <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">Project Demo</h3>
                 <p className="text-gray-400 max-w-2xl text-lg mt-4 border-l-2 border-[#283339] pl-4">
                   Patient dashboards, edge-processed lab summaries with sparkline trends, X-ray classification, and the doctor digital sign-off loop.
@@ -1647,7 +1757,7 @@ function App() {
             {/* Team Section */}
             <section className="p-6 md:p-16 bg-[#161b1e]" id="team">
               <div className="flex flex-col gap-2 mb-12 text-center md:text-left">
-                <span className="text-primary font-mono text-sm tracking-widest uppercase">// Section 09</span>
+                <span className="text-primary font-mono text-sm tracking-widest uppercase">{'//'} Section 09</span>
                 <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white">Project Team</h3>
                 <p className="text-gray-400 text-lg mt-2">Department of Computer Science & Engineering</p>
               </div>
